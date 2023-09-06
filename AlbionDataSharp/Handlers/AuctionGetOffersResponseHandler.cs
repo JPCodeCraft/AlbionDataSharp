@@ -1,4 +1,5 @@
 ﻿using Albion.Network;
+using AlbionData.Models;
 using AlbionDataSharp.Responses;
 using System.Text;
 using System.Text.Json;
@@ -13,12 +14,7 @@ namespace AlbionDataSharp.Handlers
 
         protected override async Task OnActionAsync(AuctionGetOffersResponse value)
         {
-            //foreach (var a in value.AuctionEntries)
-            {
-                var a = (JsonSerializer.Serialize(value.AuctionEntries));
-                NatsManager.OutgoingNatsConnection.Publish(NatsManager.marketOrdersIngest, Encoding.UTF8.GetBytes(a));
-                Console.WriteLine($"Published {value.AuctionEntries.Count} to NATS.");
-            }
+            NatsManager.Upload(value.marketUpload);
             await Task.CompletedTask;
         }
     }
