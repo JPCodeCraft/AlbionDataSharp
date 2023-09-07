@@ -35,7 +35,6 @@ namespace AlbionDataSharp
 
         public static void Upload(MarketUpload marketUpload)
         {
-            marketUpload.Orders.RemoveAll(x => !PlayerStatus.CheckLocationIDIsSet());
             try
             {
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketUpload, new JsonSerializerOptions { IncludeFields = true });
@@ -48,6 +47,21 @@ namespace AlbionDataSharp
                 else if (offers == 0 && requests == 0) text = $"Published nothing to NATS.";
                 else text = $"Published {offers} offers and {requests} requests to NATS.";
                 Console.WriteLine(text);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        public static void Upload(MarketHistoriesUpload marketHistoriesUpload)
+        {
+            try
+            {
+                var data = JsonSerializer.SerializeToUtf8Bytes(marketHistoriesUpload, new JsonSerializerOptions { IncludeFields = true });
+                PrivateOutgoingNatsConnection.Publish(marketHistoriesIngest, data);
+                Console.WriteLine($"Published {marketHistoriesUpload.MarketHistories.Count} histories for {marketHistoriesUpload.AlbionId} " +
+                    $"quality {marketHistoriesUpload.QualityLevel} in location {marketHistoriesUpload.LocationId} timescale {marketHistoriesUpload.Timescale}.");
             }
             catch (Exception ex)
             {
