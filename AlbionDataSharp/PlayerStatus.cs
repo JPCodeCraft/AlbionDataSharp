@@ -1,4 +1,5 @@
 ﻿using AlbionData.Models;
+using AlbionDataSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,11 @@ namespace AlbionDataSharp
         private static string locationID;
         private static string playerName;
         private static Servers server = Servers.Unknown;
+        //CacheSize limit size of messages in cache
+        private const ulong cacheSize = 8192;
+
+        public static MarketHistoryInfo[] MarketHistoryIDLookup { get; } = new MarketHistoryInfo[CacheSize];
+        public static ulong CacheSize => cacheSize;
 
         public static string LocationID { get => locationID; 
             set 
@@ -42,8 +48,12 @@ namespace AlbionDataSharp
 
         public static bool CheckLocationIDIsSet()
         {
-            if (locationID == null) return false;
-            return Enum.IsDefined(typeof(Location), int.Parse(LocationID));
+            if (locationID == null || !Enum.IsDefined(typeof(Location), int.Parse(LocationID)))
+            {
+                Console.WriteLine($"Player location is not set. Please change maps.");
+                return false;
+            }
+            else return true;
         }
     }
 }

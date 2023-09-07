@@ -13,7 +13,6 @@ namespace AlbionDataSharp.Responses
             Console.WriteLine($"Got {GetType().ToString()} packet."); 
             if (!PlayerStatus.CheckLocationIDIsSet())
             {
-                Console.WriteLine($"Player location is not set. Please change maps.");
                 return;
             }
             try

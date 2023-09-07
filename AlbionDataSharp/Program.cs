@@ -1,5 +1,6 @@
 ﻿using Albion.Network;
 using AlbionDataSharp.Handlers;
+using AlbionDataSharp.Requests;
 using PacketDotNet;
 using SharpPcap;
 using System.ComponentModel;
@@ -19,7 +20,9 @@ namespace AlbionDataSharp
             //ADD HANDLERS HERE
             builder.AddResponseHandler(new AuctionGetOffersResponseHandler());
             builder.AddResponseHandler(new AuctionGetRequestsResponseHandler());
+            builder.AddResponseHandler(new AuctionGetItemAverageStatsResponseHandler());
             builder.AddResponseHandler(new JoinResponseHandler());
+            builder.AddRequestHandler(new AuctionGetItemAverageStatsRequestHandler());
 
             receiver = builder.Build();
 
