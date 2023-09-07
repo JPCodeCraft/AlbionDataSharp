@@ -4,13 +4,13 @@ using AlbionData.Models;
 
 namespace AlbionDataSharp.Responses
 {
-    public class AuctionGetOffersResponse : BaseOperation
+    public class AuctionGetRequestsResponse : BaseOperation
     {
         public readonly MarketUpload marketUpload = new();
 
-        public AuctionGetOffersResponse(Dictionary<byte, object> parameters) : base(parameters)
+        public AuctionGetRequestsResponse(Dictionary<byte, object> parameters) : base(parameters)
         {
-            Console.WriteLine($"Got {GetType().ToString()} packet."); 
+            Console.WriteLine($"Got {GetType().ToString()} packet.");
             if (!PlayerStatus.CheckLocationIDIsSet())
             {
                 Console.WriteLine($"Player location is not set. Please change maps.");
