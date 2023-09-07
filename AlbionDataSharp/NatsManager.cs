@@ -35,11 +35,19 @@ namespace AlbionDataSharp
 
         public static void Upload(MarketUpload marketUpload)
         {
+            marketUpload.Orders.RemoveAll(x => !PlayerStatus.CheckLocationIDIsSet());
             try
             {
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketUpload, new JsonSerializerOptions { IncludeFields = true });
                 PrivateOutgoingNatsConnection.Publish(marketOrdersIngest, data);
-                Console.WriteLine($"Published {marketUpload.Orders.Count} market offers to NATS.");
+                var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
+                var requests = marketUpload.Orders.Where(x => x.AuctionType == "request").Count();
+                var text = "";
+                if (offers > 0 && requests == 0) text = $"Published {offers} offers to NATS.";
+                else if (offers == 0 && requests > 0) text = $"Published {requests} requests to NATS.";
+                else if (offers == 0 && requests == 0) text = $"Published nothing to NATS.";
+                else text = $"Published {offers} offers and {requests} requests to NATS.";
+                Console.WriteLine(text);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AlbionData.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +38,12 @@ namespace AlbionDataSharp
                 server = value;
                 Console.WriteLine($"Server set to {Server}");
             }
+        }
+
+        public static bool CheckLocationIDIsSet()
+        {
+            if (locationID == null) return false;
+            return Enum.IsDefined(typeof(Location), int.Parse(LocationID));
         }
     }
 }

@@ -18,6 +18,7 @@ namespace AlbionDataSharp
 
             //ADD HANDLERS HERE
             builder.AddResponseHandler(new AuctionGetOffersResponseHandler());
+            builder.AddResponseHandler(new AuctionGetRequestsResponseHandler());
             builder.AddResponseHandler(new JoinResponseHandler());
 
             receiver = builder.Build();
@@ -35,7 +36,7 @@ namespace AlbionDataSharp
                     device.OnPacketArrival += new PacketArrivalEventHandler(PacketHandler);
                     device.Open(new DeviceConfiguration 
                     {
-                        Mode = DeviceModes.DataTransferUdp,
+                        Mode = DeviceModes.MaxResponsiveness,
                         ReadTimeout = 5000
                     });
                     device.Filter = "(host 5.45.187 or host 5.188.125) and udp port 5056";
