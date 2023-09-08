@@ -1,20 +1,20 @@
 ﻿using Albion.Network;
-using AlbionData.Models;
+using AlbionDataSharp.Nats;
 using AlbionDataSharp.Responses;
-using System.Text;
-using System.Text.Json;
 
 namespace AlbionDataSharp.Handlers
 {
     public class AuctionGetItemAverageStatsResponseHandler : ResponsePacketHandler<AuctionGetItemAverageStatsResponse>
     {
-        public AuctionGetItemAverageStatsResponseHandler() : base((int)OperationCodes.AuctionGetItemAverageStats)
+        private readonly INatsManager _natsManager;
+        public AuctionGetItemAverageStatsResponseHandler(INatsManager natsManager) : base((int)OperationCodes.AuctionGetItemAverageStats)
         {
+            _natsManager = natsManager;
         }
 
         protected override async Task OnActionAsync(AuctionGetItemAverageStatsResponse value)
         {
-            NatsManager.Upload(value.marketHistoriesUpload);
+            _natsManager.Upload(value.marketHistoriesUpload);
             await Task.CompletedTask;
         }
     }
