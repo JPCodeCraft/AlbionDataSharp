@@ -3,24 +3,17 @@ using System.Text.Json;
 using AlbionData.Models;
 using AlbionDataSharp.Models;
 using System.Collections;
-using Microsoft.Extensions.Logging;
-using AlbionDataSharp.Status;
 
 namespace AlbionDataSharp.Responses
 {
     public class AuctionGetItemAverageStatsResponse : BaseOperation
     {
-        private readonly ILogger<AuctionGetItemAverageStatsResponse> _logger;
-        private readonly IPlayerStatus _playerStatus;
         public readonly MarketHistoriesUpload marketHistoriesUpload = new();
 
-        public AuctionGetItemAverageStatsResponse(ILogger<AuctionGetItemAverageStatsResponse> logger, IPlayerStatus playerStatus, Dictionary<byte, object> parameters) : base(parameters)
+        public AuctionGetItemAverageStatsResponse(Dictionary<byte, object> parameters) : base(parameters)
         {
-            _logger = logger;
-            _playerStatus = playerStatus;
-
-            _logger.LogDebug($"Got {GetType().ToString()} packet.");
-            if (!_playerStatus.CheckLocationIDIsSet())
+            Console.WriteLine($"Got {GetType().ToString()} packet.");
+            if (!PlayerStatus.CheckLocationIDIsSet())
             {
                 return;
             }
@@ -49,7 +42,7 @@ namespace AlbionDataSharp.Responses
                     messageID = Convert.ToUInt64(id);
                 }
                 //load info from database
-                info = _playerStatus.MarketHistoryIDLookup[messageID % _playerStatus.CacheSize];
+                info = PlayerStatus.MarketHistoryIDLookup[messageID % PlayerStatus.CacheSize];
                 //loops entries to fix amounts
                 for (int i = 0; i < itemAmounts.Length; i++)
                 {
@@ -59,11 +52,11 @@ namespace AlbionDataSharp.Responses
                         if (itemAmounts[i] < 124)
                         {
                             // still don't know what to do with these
-                            _logger.LogDebug($"Market History - Ignoring negative item amount {itemAmounts[i]} for {silverAmounts[i]} silver on {timeStamps[i]}");
+                            Console.WriteLine($"Market History - Ignoring negative item amount {itemAmounts[i]} for {silverAmounts[i]} silver on {timeStamps[i]}");
                         }
                         // however these can be interpreted by adding them to 256
                         // TODO: make more sense of this, (perhaps there is a better way)
-                        _logger.LogDebug($"Market History - Interpreting negative item amount {itemAmounts[i]} as {itemAmounts[i]+256} for {silverAmounts[i]} silver on {timeStamps[i]}");
+                        Console.WriteLine($"Market History - Interpreting negative item amount {itemAmounts[i]} as {itemAmounts[i]+256} for {silverAmounts[i]} silver on {timeStamps[i]}");
                         itemAmounts[i] = 256 + itemAmounts[i];
                     }
                     marketHistoriesUpload.MarketHistories.Add(new MarketHistory
@@ -81,7 +74,7 @@ namespace AlbionDataSharp.Responses
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                Console.WriteLine(e.Message);
             }
         }
     }

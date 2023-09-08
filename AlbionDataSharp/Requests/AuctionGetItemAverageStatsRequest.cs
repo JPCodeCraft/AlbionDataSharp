@@ -2,25 +2,18 @@
 using System.Text.Json;
 using AlbionData.Models;
 using AlbionDataSharp.Models;
-using Microsoft.Extensions.Logging;
-using AlbionDataSharp.Status;
 
 namespace AlbionDataSharp.Requests
 {
     public class AuctionGetItemAverageStatsRequest : BaseOperation
     {
-        private readonly ILogger<AuctionGetItemAverageStatsRequest> _logger;
-        private readonly IPlayerStatus _playerStatus;
 
-        public AuctionGetItemAverageStatsRequest(ILogger<AuctionGetItemAverageStatsRequest> logger, IPlayerStatus playerStatus, Dictionary<byte, object> parameters) : base(parameters)
+        public AuctionGetItemAverageStatsRequest(Dictionary<byte, object> parameters) : base(parameters)
         {
-            _logger = logger;
-            _playerStatus = playerStatus;
-
-            _logger.LogDebug($"Got {GetType().ToString()} packet.");
-            if (!_playerStatus.CheckLocationIDIsSet()) return;
+            Console.WriteLine($"Got {GetType().ToString()} packet.");
+            if (!PlayerStatus.CheckLocationIDIsSet()) return;
             MarketHistoryInfo info = new MarketHistoryInfo();
-            info.LocationID = _playerStatus.LocationID;
+            info.LocationID = PlayerStatus.LocationID;
             try
             {
                 if (parameters.TryGetValue(1, out object itemID))
@@ -37,7 +30,7 @@ namespace AlbionDataSharp.Requests
                 }
                 if (parameters.TryGetValue(255, out object messageID))
                 {
-                    _playerStatus.MarketHistoryIDLookup[Convert.ToUInt32(messageID) % _playerStatus.CacheSize] = info;
+                    PlayerStatus.MarketHistoryIDLookup[Convert.ToUInt32(messageID) % PlayerStatus.CacheSize] = info;
                 }
             }
             catch (Exception e)
