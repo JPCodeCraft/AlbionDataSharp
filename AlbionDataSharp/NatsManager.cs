@@ -1,5 +1,4 @@
 ﻿using AlbionData.Models;
-using Microsoft.Extensions.Logging;
 using NATS.Client;
 using Newtonsoft.Json.Linq;
 using System;
@@ -9,15 +8,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace AlbionDataSharp.Nats
+namespace AlbionDataSharp
 {
-    public class NatsManager : INatsManager
+    internal static class NatsManager
     {
-        private readonly ILogger<NatsManager> _logger;
-        public NatsManager(ILogger<NatsManager> logger)
-        {
-            _logger = logger;
-        }
         private static string PrivateNatsUrl { get; set; } = "nats://localhost:4222";
         private static string PublicNatsUrlEast { get; set; } = "nats://public:thenewalbiondata@nats.albion-online-data.com:24222";
         private static string PublicNatsUrlWest { get; set; } = "nats://public:thenewalbiondata@nats.albion-online-data.com:4222";
@@ -25,13 +19,13 @@ namespace AlbionDataSharp.Nats
         private const string marketHistoriesIngest = "markethistories.ingest";
         private const string goldDataIngest = "goldprices.ingest";
 
-        private readonly Lazy<IConnection> PrivateLazyOutgoingNats = new Lazy<IConnection>(() =>
+        private static readonly Lazy<IConnection> PrivateLazyOutgoingNats = new Lazy<IConnection>(() =>
         {
             var natsFactory = new ConnectionFactory();
             return natsFactory.CreateConnection(PrivateNatsUrl);
         });
 
-        private IConnection PrivateOutgoingNatsConnection
+        private static IConnection PrivateOutgoingNatsConnection
         {
             get
             {
@@ -39,7 +33,7 @@ namespace AlbionDataSharp.Nats
             }
         }
 
-        public void Upload(MarketUpload marketUpload)
+        public static void Upload(MarketUpload marketUpload)
         {
             try
             {
@@ -52,26 +46,26 @@ namespace AlbionDataSharp.Nats
                 else if (offers == 0 && requests > 0) text = $"Published {requests} requests to NATS.";
                 else if (offers == 0 && requests == 0) text = $"Published nothing to NATS.";
                 else text = $"Published {offers} offers and {requests} requests to NATS.";
-                _logger.LogInformation(text);
+                Console.WriteLine(text);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString());
+                Console.WriteLine(ex.ToString());
             }
         }
 
-        public void Upload(MarketHistoriesUpload marketHistoriesUpload)
+        public static void Upload(MarketHistoriesUpload marketHistoriesUpload)
         {
             try
             {
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketHistoriesUpload, new JsonSerializerOptions { IncludeFields = true });
                 PrivateOutgoingNatsConnection.Publish(marketHistoriesIngest, data);
-                _logger.LogInformation($"Published {marketHistoriesUpload.MarketHistories.Count} histories for {marketHistoriesUpload.AlbionId} " +
+                Console.WriteLine($"Published {marketHistoriesUpload.MarketHistories.Count} histories for {marketHistoriesUpload.AlbionId} " +
                     $"quality {marketHistoriesUpload.QualityLevel} in location {marketHistoriesUpload.LocationId} timescale {marketHistoriesUpload.Timescale}.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString());
+                Console.WriteLine(ex.ToString());
             }
         }
 

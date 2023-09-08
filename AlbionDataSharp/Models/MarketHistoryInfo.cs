@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AlbionDataSharp.Models
 {
-    public class MarketHistoryInfo
+    internal class MarketHistoryInfo
     {
         public uint AlbionId { get; set; }
         public Timescale Timescale { get; set; }
