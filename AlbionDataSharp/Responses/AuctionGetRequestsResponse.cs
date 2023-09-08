@@ -1,17 +1,23 @@
 ﻿using Albion.Network;
 using System.Text.Json;
 using AlbionData.Models;
+using Microsoft.Extensions.Logging;
+using AlbionDataSharp.Status;
 
 namespace AlbionDataSharp.Responses
 {
     public class AuctionGetRequestsResponse : BaseOperation
     {
+        private readonly ILogger<AuctionGetRequestsResponse> _logger;
+        private readonly IPlayerStatus _playerStatus;
         public readonly MarketUpload marketUpload = new();
 
-        public AuctionGetRequestsResponse(Dictionary<byte, object> parameters) : base(parameters)
+        public AuctionGetRequestsResponse(ILogger<AuctionGetRequestsResponse> logger, Dictionary<byte, object> parameters) : base(parameters)
         {
-            Console.WriteLine($"Got {GetType().ToString()} packet.");
-            if (!PlayerStatus.CheckLocationIDIsSet())
+            _logger = logger;
+
+            _logger.LogDebug($"Got {GetType().ToString()} packet.");
+            if (!_playerStatus.CheckLocationIDIsSet())
             {
                 return;
             }
@@ -22,14 +28,14 @@ namespace AlbionDataSharp.Responses
                     foreach (var auctionOfferString in (IEnumerable<string>)orders ?? new List<string>())
                     {
                         var order = JsonSerializer.Deserialize<MarketOrder>(auctionOfferString);
-                        order.LocationId = ushort.Parse(PlayerStatus.LocationID);
+                        order.LocationId = ushort.Parse(_playerStatus.LocationID);
                         marketUpload.Orders.Add(order);
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                _logger.LogError(e.Message);
             }
         }
     }

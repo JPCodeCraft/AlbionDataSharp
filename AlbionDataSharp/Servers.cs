@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AlbionDataSharp
 {
-    internal enum Servers
+    public enum Servers
     {
         Unknown,
         East,
