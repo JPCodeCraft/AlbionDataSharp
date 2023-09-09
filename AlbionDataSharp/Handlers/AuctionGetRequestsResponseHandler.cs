@@ -14,7 +14,8 @@ namespace AlbionDataSharp.Handlers
 
         protected override async Task OnActionAsync(AuctionGetRequestsResponse value)
         {
-            NatsManager.Upload(value.marketUpload);
+            NatsManager natsManager = new();
+            natsManager.Upload(value.marketUpload);
             await Task.CompletedTask;
         }
     }

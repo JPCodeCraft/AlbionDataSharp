@@ -2,18 +2,23 @@
 using System.Text.Json;
 using AlbionData.Models;
 using AlbionDataSharp.Models;
+using Microsoft.Extensions.Logging;
 
 namespace AlbionDataSharp.Requests
 {
     public class AuctionGetItemAverageStatsRequest : BaseOperation
     {
-
+        ILogger<AuctionGetItemAverageStatsRequest> logger;
         public AuctionGetItemAverageStatsRequest(Dictionary<byte, object> parameters) : base(parameters)
         {
-            Console.WriteLine($"Got {GetType().ToString()} packet.");
-            if (!PlayerStatus.CheckLocationIDIsSet()) return;
+            logger = Logger.New<AuctionGetItemAverageStatsRequest>();
             MarketHistoryInfo info = new MarketHistoryInfo();
+
+            logger.LogDebug($"Got {GetType().ToString()} packet.");
+
+            if (!PlayerStatus.CheckLocationIDIsSet()) return;
             info.LocationID = PlayerStatus.LocationID;
+
             try
             {
                 if (parameters.TryGetValue(1, out object itemID))
@@ -35,7 +40,7 @@ namespace AlbionDataSharp.Requests
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                logger.LogError(e.Message);
             }
 
         }

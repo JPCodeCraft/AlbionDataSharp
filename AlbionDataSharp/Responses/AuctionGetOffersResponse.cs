@@ -1,20 +1,23 @@
 ﻿using Albion.Network;
 using System.Text.Json;
 using AlbionData.Models;
+using Microsoft.Extensions.Logging;
 
 namespace AlbionDataSharp.Responses
 {
     public class AuctionGetOffersResponse : BaseOperation
     {
         public readonly MarketUpload marketUpload = new();
+        ILogger<AuctionGetOffersResponse> logger;
 
         public AuctionGetOffersResponse(Dictionary<byte, object> parameters) : base(parameters)
         {
-            Console.WriteLine($"Got {GetType().ToString()} packet."); 
-            if (!PlayerStatus.CheckLocationIDIsSet())
-            {
-                return;
-            }
+            logger = Logger.New<AuctionGetOffersResponse>();
+
+            logger.LogDebug($"Got {GetType().ToString()} packet.");
+
+            if (!PlayerStatus.CheckLocationIDIsSet()) return;
+
             try
             {
                 if (parameters.TryGetValue(0, out object orders))
@@ -29,7 +32,7 @@ namespace AlbionDataSharp.Responses
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                logger.LogError(e.Message);
             }
         }
     }
