@@ -1,16 +1,17 @@
 ﻿using Albion.Network;
 using System.Text.Json;
 using AlbionData.Models;
+using Microsoft.Extensions.Logging;
 
 namespace AlbionDataSharp.Responses
 {
     public class JoinResponse : BaseOperation
     {
-
+        ILogger<JoinResponse> logger;
         public JoinResponse(Dictionary<byte, object> parameters) : base(parameters)
         {
-
-            Console.WriteLine($"Got {GetType().ToString()} packet.");
+            logger = Logger.New<JoinResponse>();
+            logger.LogDebug($"Got {GetType().ToString()} packet.");
             try
             {
                 if (parameters.TryGetValue(2, out object nameData))
@@ -27,7 +28,7 @@ namespace AlbionDataSharp.Responses
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                logger.LogError(e.Message);
             }
         }
     }

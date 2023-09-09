@@ -1,6 +1,7 @@
 ﻿using Albion.Network;
 using AlbionDataSharp.Handlers;
 using AlbionDataSharp.Requests;
+using Microsoft.Extensions.Logging;
 using PacketDotNet;
 using SharpPcap;
 using System.ComponentModel;
@@ -12,6 +13,7 @@ namespace AlbionDataSharp
     public class Program
     {
         private static IPhotonReceiver receiver;
+        private static ILogger<Program> logger = Logger.New<Program>();
 
         private static void Main(string[] args)
         {
@@ -26,7 +28,7 @@ namespace AlbionDataSharp
 
             receiver = builder.Build();
 
-            Console.WriteLine("Start");
+            logger.LogDebug("Starting...");
 
             CaptureDeviceList devices = CaptureDeviceList.New();
 
@@ -34,7 +36,7 @@ namespace AlbionDataSharp
             {
                 new Thread(() =>
                 {
-                    Console.WriteLine($"Open... {device.Description}");
+                    logger.LogDebug($"Open... {device.Description}");
 
                     device.OnPacketArrival += new PacketArrivalEventHandler(PacketHandler);
                     device.Open(new DeviceConfiguration 
@@ -48,6 +50,7 @@ namespace AlbionDataSharp
                 .Start();
             }
 
+            logger.LogInformation("Listening to Albion network packages!");
             Console.Read();
         }
 
@@ -79,7 +82,7 @@ namespace AlbionDataSharp
             }
             catch (Exception ex)
             {
-                //Console.WriteLine(ex.Message);
+                logger.LogDebug(ex.Message);
             }
 
         }
