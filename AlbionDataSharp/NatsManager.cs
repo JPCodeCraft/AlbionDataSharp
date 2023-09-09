@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace AlbionDataSharp
 {
@@ -19,7 +20,6 @@ namespace AlbionDataSharp
         private const string marketOrdersIngest = "marketorders.ingest";
         private const string marketHistoriesIngest = "markethistories.ingest";
         private const string goldDataIngest = "goldprices.ingest";
-        ILogger<NatsManager> logger = Logger.New<NatsManager>();
 
         private readonly Lazy<IConnection> PrivateLazyOutgoingNats = new Lazy<IConnection>(() =>
         {
@@ -41,16 +41,14 @@ namespace AlbionDataSharp
                 PrivateOutgoingNatsConnection.Publish(marketOrdersIngest, data);
                 var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
                 var requests = marketUpload.Orders.Where(x => x.AuctionType == "request").Count();
-                var text = "";
-                if (offers > 0 && requests == 0) text = $"Published {offers} offers to NATS.";
-                else if (offers == 0 && requests > 0) text = $"Published {requests} requests to NATS.";
-                else if (offers == 0 && requests == 0) text = $"Published nothing to NATS.";
-                else text = $"Published {offers} offers and {requests} requests to NATS.";
-                logger.LogInformation(text);
+                if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to NATS.", offers);
+                else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to NATS.", requests);
+                else if (offers == 0 && requests == 0) Log.Information($"Published nothing to NATS.");
+                else Log.Information("Published {amount} offers and {amount} requests to NATS.", offers, requests);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.ToString());
+                Log.Error(ex, ex.ToString());
             }
         }
         public void Upload(MarketHistoriesUpload marketHistoriesUpload)
@@ -59,12 +57,13 @@ namespace AlbionDataSharp
             {
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketHistoriesUpload, new JsonSerializerOptions { IncludeFields = true });
                 PrivateOutgoingNatsConnection.Publish(marketHistoriesIngest, data);
-                logger.LogInformation($"Published {marketHistoriesUpload.MarketHistories.Count} histories for {marketHistoriesUpload.AlbionId} " +
-                    $"quality {marketHistoriesUpload.QualityLevel} in location {marketHistoriesUpload.LocationId} timescale {marketHistoriesUpload.Timescale}.");
+                Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale}.",
+                    marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel, 
+                    marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.ToString());
+                Log.Error(ex, ex.ToString());
             }
         }
 
