@@ -4,19 +4,25 @@ using AlbionDataSharp.Requests;
 using Microsoft.Extensions.Logging;
 using PacketDotNet;
 using SharpPcap;
+using Serilog;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace AlbionDataSharp
 {
     public class Program
     {
         private static IPhotonReceiver receiver;
-        private static ILogger<Program> logger = Logger.New<Program>();
 
         private static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
+                .CreateLogger();
+
             ReceiverBuilder builder = ReceiverBuilder.Create();
 
             //ADD HANDLERS HERE
@@ -28,7 +34,7 @@ namespace AlbionDataSharp
 
             receiver = builder.Build();
 
-            logger.LogDebug("Starting...");
+            Log.Debug("Starting...");
 
             CaptureDeviceList devices = CaptureDeviceList.New();
 
@@ -36,7 +42,7 @@ namespace AlbionDataSharp
             {
                 new Thread(() =>
                 {
-                    logger.LogDebug($"Open... {device.Description}");
+                    Log.Debug("Open... {Device}", device.Description);
 
                     device.OnPacketArrival += new PacketArrivalEventHandler(PacketHandler);
                     device.Open(new DeviceConfiguration 
@@ -50,7 +56,7 @@ namespace AlbionDataSharp
                 .Start();
             }
 
-            logger.LogInformation("Listening to Albion network packages!");
+            Log.Information("Listening to Albion network packages!");
             Console.Read();
         }
 
@@ -82,7 +88,7 @@ namespace AlbionDataSharp
             }
             catch (Exception ex)
             {
-                logger.LogDebug(ex.Message);
+                Log.Error(ex.Message);
             }
 
         }

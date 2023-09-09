@@ -2,19 +2,17 @@
 using System.Text.Json;
 using AlbionData.Models;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace AlbionDataSharp.Responses
 {
     public class AuctionGetOffersResponse : BaseOperation
     {
         public readonly MarketUpload marketUpload = new();
-        ILogger<AuctionGetOffersResponse> logger;
 
         public AuctionGetOffersResponse(Dictionary<byte, object> parameters) : base(parameters)
         {
-            logger = Logger.New<AuctionGetOffersResponse>();
-
-            logger.LogDebug($"Got {GetType().ToString()} packet.");
+            Log.Debug("Got {PacketType} packet.", GetType());
 
             if (!PlayerStatus.CheckLocationIDIsSet()) return;
 
@@ -32,7 +30,7 @@ namespace AlbionDataSharp.Responses
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message);
+                Log.Error(e, e.Message);
             }
         }
     }

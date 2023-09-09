@@ -2,16 +2,15 @@
 using System.Text.Json;
 using AlbionData.Models;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace AlbionDataSharp.Responses
 {
     public class JoinResponse : BaseOperation
     {
-        ILogger<JoinResponse> logger;
         public JoinResponse(Dictionary<byte, object> parameters) : base(parameters)
         {
-            logger = Logger.New<JoinResponse>();
-            logger.LogDebug($"Got {GetType().ToString()} packet.");
+            Log.Debug("Got {PacketType} packet.", GetType());
             try
             {
                 if (parameters.TryGetValue(2, out object nameData))
@@ -28,7 +27,7 @@ namespace AlbionDataSharp.Responses
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message);
+                Log.Error(e, e.Message);
             }
         }
     }

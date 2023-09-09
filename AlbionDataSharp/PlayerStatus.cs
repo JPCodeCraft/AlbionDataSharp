@@ -1,6 +1,7 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Models;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace AlbionDataSharp
 {
@@ -12,22 +13,16 @@ namespace AlbionDataSharp
         //CacheSize limit size of messages in cache
         private const ulong cacheSize = 8192;
 
-        private static ILogger<PlayerStatus> logger;
-
         public static MarketHistoryInfo[] MarketHistoryIDLookup { get; } = new MarketHistoryInfo[CacheSize];
         public static ulong CacheSize => cacheSize;
 
-        public PlayerStatus()
-        {
-            logger = Logger.New<PlayerStatus>();
-        }
         public static string LocationID 
         { 
             get => locationID; 
             set 
             { 
                 locationID = value;
-                logger.LogInformation($"Player location set to {LocationID}");
+                Log.Information("Player location set to {Location}", LocationID);
             } }
         public static string PlayerName
         {
@@ -36,7 +31,7 @@ namespace AlbionDataSharp
             {
                 if (playerName == value) return;
                 playerName = value;
-                logger.LogInformation($"Player name set to {PlayerName}");
+                Log.Information("Player name set to {PlayerName}", PlayerName);
             }
         }
         public static Servers Server
@@ -46,7 +41,7 @@ namespace AlbionDataSharp
             {
                 if (server == value) return;
                 server = value;
-                logger.LogInformation($"Server set to {Server}");
+                Log.Information("Server set to {Server}", Server);
             }
         }
 
@@ -54,7 +49,7 @@ namespace AlbionDataSharp
         {
             if (locationID == null || !Enum.IsDefined(typeof(Location), int.Parse(LocationID)))
             {
-                logger.LogCritical($"Player location is not set. Please change maps.");
+                Log.Fatal($"Player location is not set. Please change maps.");
                 return false;
             }
             else return true;
