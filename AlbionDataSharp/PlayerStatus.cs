@@ -49,7 +49,7 @@ namespace AlbionDataSharp
         {
             if (locationID == null || !Enum.IsDefined(typeof(Location), int.Parse(LocationID)))
             {
-                Log.Fatal($"Player location is not set. Please change maps.");
+                Log.Warning($"Player location is not set. Please change maps.");
                 return false;
             }
             else return true;

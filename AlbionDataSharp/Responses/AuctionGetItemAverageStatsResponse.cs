@@ -54,12 +54,12 @@ namespace AlbionDataSharp.Responses
                         if (itemAmounts[i] < 124)
                         {
                             // still don't know what to do with these
-                            Log.Fatal("Market History - Ignoring negative item amount {Amount} for {Silver} silver on {Timestamp}",
+                            Log.Warning("Market History - Ignoring negative item amount {Amount} for {Silver} silver on {Timestamp}",
                                 itemAmounts[i], silverAmounts[i], timeStamps[i]);
                         }
                         // however these can be interpreted by adding them to 256
                         // TODO: make more sense of this, (perhaps there is a better way)
-                        Log.Fatal("Market History - Interpreting negative item amount {Amount} as {Amount} for {Silver} silver on {Timestamp}",
+                        Log.Warning("Market History - Interpreting negative item amount {Amount} as {Amount} for {Silver} silver on {Timestamp}",
                             itemAmounts[i], itemAmounts[i] + 256, silverAmounts[i], timeStamps[i]);
                         itemAmounts[i] = 256 + itemAmounts[i];
                     }
