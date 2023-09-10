@@ -88,7 +88,7 @@ namespace AlbionDataSharp
             }
             catch (Exception ex)
             {
-                Log.Error(ex.Message);
+                Log.Debug(ex.Message);
             }
 
         }
