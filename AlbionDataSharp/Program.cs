@@ -12,6 +12,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace AlbionDataSharp
 {
@@ -20,17 +21,18 @@ namespace AlbionDataSharp
 
         private static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .WriteTo.Console(theme: AnsiConsoleTheme.Literate)
-                .CreateLogger();
-
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
             builder.Services.AddHostedService<NetworkListener>();
-            builder.Logging.ClearProviders();
-            builder.Logging.AddSerilog(Log.Logger, true);
+
+            builder.Services.AddSerilog(config =>
+            {
+                config.ReadFrom.Configuration(builder.Configuration);
+
+            });
 
             IHost host = builder.Build();
+            
             host.Run();
         }
 
