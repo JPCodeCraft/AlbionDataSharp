@@ -24,14 +24,14 @@ namespace AlbionDataSharp
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
             builder.Services.AddHostedService<NetworkListener>();
-
             builder.Services.AddSerilog(config =>
             {
                 config.ReadFrom.Configuration(builder.Configuration);
 
             });
-
             IHost host = builder.Build();
+
+            ConfigurationHelper.Initialize(host.Services.GetRequiredService<IConfiguration>());
             
             host.Run();
         }
