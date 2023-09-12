@@ -10,9 +10,9 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  pre-release:
+    name: "Pre Release"
+    runs-on: "ubuntu-latest"
 
     steps:
     - uses: actions/checkout@v3
@@ -29,9 +29,12 @@ jobs:
       run: dotnet build -c release --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3
+    - uses: "marvinpinto/action-automatic-releases@latest"
       with:
-        # Artifact name
-        name: AlbionDataSharp${{ steps.date.outputs.date }}
-        path: bin/release/net7.0/*.*
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            LICENSE.txt
+            *.jar
