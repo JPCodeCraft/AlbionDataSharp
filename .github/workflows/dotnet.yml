@@ -22,7 +22,7 @@ jobs:
         dotnet-version: 7.0.x
     - name: Get current date
       id: date
-      run: echo "::set-output name=date::$(date +'%Y-%m-%d')
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
