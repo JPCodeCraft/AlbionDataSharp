@@ -5,8 +5,6 @@ VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlbionDataSharp", "AlbionDataSharp\AlbionDataSharp.csproj", "{4CCE2A89-8C8B-4972-A243-2895AD9A4B28}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClickOnce", "ClickOnce", "{261FC172-32FC-485E-8556-6D8B96E06D84}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
