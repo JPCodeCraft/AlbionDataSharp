@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
+  <asmv1:assemblyIdentity name="AlbionDataSharp.exe" version="0.1.0.0" publicKeyToken="d76f55247a4ab6c7" language="en" processorArchitecture="msil" type="win32" />
+  <description asmv2:iconFile="Assets\favicon.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
+  <application />
+  <entryPoint>
+    <assemblyIdentity name="Launcher" version="8.0.0.0" language="neutral" processorArchitecture="msil" />
+    <commandLine file="Launcher.exe" parameters="" />
+  </entryPoint>
+  <trustInfo>
+    <security>
+      <applicationRequestMinimum>
+        <PermissionSet Unrestricted="true" ID="Custom" SameSite="site" />
+        <defaultAssemblyRequest permissionSetReference="Custom" />
+      </applicationRequestMinimum>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!--
+          UAC Manifest Options
+          If you want to change the Windows User Account Control level replace the
+          requestedExecutionLevel node with one of the following.
+
+        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+
+         If you want to utilize File and Registry Virtualization for backward
+         compatibility then delete the requestedExecutionLevel node.
+    -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <dependency>
+    <dependentOS>
+      <osVersionInfo>
+        <os majorVersion="4" minorVersion="10" buildNumber="0" servicePackMajor="0" />
+      </osVersionInfo>
+    </dependentOS>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="preRequisite" allowDelayedBinding="true">
+      <assemblyIdentity name="Microsoft.Windows.CommonLanguageRuntime" version="4.0.30319.0" />
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Launcher.exe" size="17344">
+      <assemblyIdentity name="Launcher" version="8.0.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>xxoEyH1CNElLnB4K8tXitQ3Hf4Z2i7bk5RICFB3j700=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <file name="AlbionDataSharp.exe" size="68294176">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>bSj1nLDZyzfz9Y13kbzSEtfgJLbiP6kmG6bFDrfgVM8=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="appsettings.json" size="1049">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>9rdGUGUpss8+HF40qQ7JPNm1nHRsvml293Po/fBm8+Y=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Assets\favicon.ico" size="16446">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>y6uuV1vGd2c3us9OT5gbU2MpRE1XRlqYsPS/dTYqgEw=</dsig:DigestValue>
+    </hash>
+  </file>
+<publisherIdentity name="CN=ESCRITORIO\augus" issuerKeyHash="e66a76d6272687d849067b7fd8fbf5a6fbf4fd84" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>PwfFCetQRzkv9e+n/EscTLZgieLaHHxnMRMuzAJ40Tk=</DigestValue></Reference></SignedInfo><SignatureValue>x8BJy20SEbo6jF/0MiwtuktrpzrET2EOvBwzr+ZWKwGoB/SX9ex7LLXM5zIh2Rs+H+J+BTzhsS2jLarGI50qnqE/eFoG2Qv/PbDyrnVgnl0JGU9u6+aw+Hrl9WGZHhy0GgDhT0Ku4JBQpLyxcblnjDOKRcDRamhxzmcY8iBgh0M=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>38zsZQpKmgtbh019WWCqbD7JJVh2Wo6xMubz4b23tjxbHUvVUyX2ZsRH7BSmxECC96YqIHFaDrMNafGrInV4tkAWk03GgV4Bdbd68qQ6BvmPOzIR1Eqjw0PKWH++fpHe2w39LiFJ9gJkANKhPV7hFAmRykNPLYAOZNd6+ho2zTE=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="39d17802cc2e1331677c1cdae28960b64c1c4bfca7eff52f394750eb09c5073f" Description="" Url=""><as:assemblyIdentity name="AlbionDataSharp.exe" version="0.1.0.0" publicKeyToken="d76f55247a4ab6c7" language="en" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=ESCRITORIO\augus</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>h+aEDxZkEbheJZSA3ZsEQrMgxL1g8X5/nGQaJ3Fvn3E=</DigestValue></Reference></SignedInfo><SignatureValue>eJR4IQw9AiPfDq+gKdqx8has7GknH4kTtC9PEG5v2w0s6NKchemEJwlbe9tMcf80KiYFIpYWpYXHOBo7Jl32RP1pc7SCws+J2x1Ww4VhJWWGWBlMpkS5HIu/hbIYoTW4ZSXxi6NCbOyKrc8dKw4NgTu8j+50nBJKJ30ST8hhcsg=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>38zsZQpKmgtbh019WWCqbD7JJVh2Wo6xMubz4b23tjxbHUvVUyX2ZsRH7BSmxECC96YqIHFaDrMNafGrInV4tkAWk03GgV4Bdbd68qQ6BvmPOzIR1Eqjw0PKWH++fpHe2w39LiFJ9gJkANKhPV7hFAmRykNPLYAOZNd6+ho2zTE=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIB2TCCAUKgAwIBAgIQOyCDEHautaRNJftHL4ZAFjANBgkqhkiG9w0BAQsFADArMSkwJwYDVQQDHiAARQBTAEMAUgBJAFQATwBSAEkATwBcAGEAdQBnAHUAczAeFw0yMzA5MTQwMjI3NThaFw0yNDA5MTMwODI3NThaMCsxKTAnBgNVBAMeIABFAFMAQwBSAEkAVABPAFIASQBPAFwAYQB1AGcAdQBzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDfzOxlCkqaC1uHTX1ZYKpsPsklWHZajrEy5vPhvbe2PFsdS9VTJfZmxEfsFKbEQIL3piogcVoOsw1p8asidXi2QBaTTcaBXgF1t3rypDoG+Y87MhHUSqPDQ8pYf75+kd7bDf0uIUn2AmQA0qE9XuEUCZHKQ08tgA5k13r6GjbNMQIDAQABMA0GCSqGSIb3DQEBCwUAA4GBAKDE2AcHQMAaxx9FGv5o3OStHJNYlA3fgSDuIQd8iQ1PIK/voGFB1Dg7xthkPPeCTjJu2RAfZ0zSZyN8qR7HpYnwRspywytVv39SIKo+OeD0nSXmv7XFMRJ6tRuvPyKu1TXMUD12OpCXExdBPJZG2iYPrGnWBroJey6XabMzXFpu</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>
