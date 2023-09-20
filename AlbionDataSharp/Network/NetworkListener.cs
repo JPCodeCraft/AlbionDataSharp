@@ -1,16 +1,12 @@
 ﻿using Albion.Network;
-using AlbionDataSharp.Handlers;
+using AlbionDataSharp.Network.Handlers;
+using AlbionDataSharp.State;
 using Microsoft.Extensions.Hosting;
 using PacketDotNet;
 using Serilog;
 using SharpPcap;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AlbionDataSharp
+namespace AlbionDataSharp.Network
 {
     internal class NetworkListener : IHostedService
     {

@@ -1,18 +1,8 @@
-﻿using Albion.Network;
-using AlbionDataSharp.Handlers;
-using AlbionDataSharp.Requests;
-using Microsoft.Extensions.Logging;
-using PacketDotNet;
-using SharpPcap;
-using Serilog;
-using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using Serilog.Sinks.SystemConsole.Themes;
+﻿using Serilog;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using AlbionDataSharp.Network;
 
 namespace AlbionDataSharp
 {

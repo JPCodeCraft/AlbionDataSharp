@@ -10,11 +10,11 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog;
 using Microsoft.Extensions.Configuration;
-using AlbionDataSharp.Models;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using AlbionDataSharp.State;
 
-namespace AlbionDataSharp
+namespace AlbionDataSharp.Network.Nats
 {
     internal class NatsManager
     {

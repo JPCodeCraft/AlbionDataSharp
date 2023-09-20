@@ -1,12 +1,12 @@
 ﻿using Albion.Network;
 using System.Text.Json;
 using AlbionData.Models;
-using AlbionDataSharp.Models;
 using System.Collections;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using AlbionDataSharp.State;
 
-namespace AlbionDataSharp.Responses
+namespace AlbionDataSharp.Network.Responses
 {
     public class AuctionGetItemAverageStatsResponse : BaseOperation
     {

@@ -1,9 +1,10 @@
 ﻿using Albion.Network;
 using System.Text.Json;
 using AlbionData.Models;
-using AlbionDataSharp.Models;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using AlbionDataSharp.State;
+using AlbionDataSharp.Network;
 
 namespace AlbionDataSharp.Requests
 {

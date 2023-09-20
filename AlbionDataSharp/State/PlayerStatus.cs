@@ -1,9 +1,9 @@
 ﻿using AlbionData.Models;
-using AlbionDataSharp.Models;
+using AlbionDataSharp.Network;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
-namespace AlbionDataSharp
+namespace AlbionDataSharp.State
 {
     internal class PlayerStatus
     {
@@ -16,14 +16,15 @@ namespace AlbionDataSharp
         public static MarketHistoryInfo[] MarketHistoryIDLookup { get; } = new MarketHistoryInfo[CacheSize];
         public static ulong CacheSize => cacheSize;
 
-        public static string LocationID 
-        { 
-            get => locationID; 
-            set 
-            { 
+        public static string LocationID
+        {
+            get => locationID;
+            set
+            {
                 locationID = value;
                 Log.Information("Player location set to {Location}", LocationID);
-            } }
+            }
+        }
         public static string PlayerName
         {
             get => playerName;

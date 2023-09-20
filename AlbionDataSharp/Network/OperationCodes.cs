@@ -1,4 +1,4 @@
-﻿namespace AlbionDataSharp
+﻿namespace AlbionDataSharp.Network
 {
     public enum OperationCodes
     {
