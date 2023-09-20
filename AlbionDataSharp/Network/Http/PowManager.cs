@@ -20,7 +20,7 @@ namespace AlbionDataSharp.Network.Http
             {
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketUpload, new JsonSerializerOptions { IncludeFields = true });
                 var powRequest = await GetPowRequest();
-                var powSolution = SolvePow(powRequest);
+                var powSolution = await SolvePow(powRequest);
                 if (await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.natsSettings.MarketOrdersIngestSubject))
                 {
                     if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to AODataProject.", offers);
@@ -42,7 +42,7 @@ namespace AlbionDataSharp.Network.Http
             {
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketHistoriesUpload, new JsonSerializerOptions { IncludeFields = true });
                 var powRequest = await GetPowRequest();
-                var powSolution = SolvePow(powRequest);
+                var powSolution = await SolvePow(powRequest);
                 if (await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.natsSettings.MarketHistoriesIngestSubject))
                 {
                     Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to AODataProject.",
@@ -163,28 +163,28 @@ namespace AlbionDataSharp.Network.Http
         // Solves a pow looping through possible solutions
         // until a correct one is found
         // returns the solution
-        private string SolvePow(PowRequest pow)
+        private async Task<string> SolvePow(PowRequest pow)
         {
             string solution = "";
             while (true)
             {
                 string randhex = RandomHex(8);
-                string hash = ToBinaryBytes(GetHash("aod^" + randhex + "^" + pow.Key));
+                string hash = ToBinaryBytes(await GetHash("aod^" + randhex + "^" + pow.Key));
                 if (hash.StartsWith(pow.Wanted))
                 {
-                    Console.WriteLine("SOLVED!");
                     solution = randhex;
+                    Log.Debug("Solved PoW {key} with solution {solution}.", pow.Key, solution);
                     break;
                 }
             }
             return solution;
         }
-        private string GetHash(string input)
+        private async Task<string> GetHash(string input)
         {
             using (SHA256 sha256 = SHA256.Create())
             {
                 byte[] bytes = Encoding.UTF8.GetBytes(input);
-                byte[] hashBytes = sha256.ComputeHash(bytes);
+                byte[] hashBytes = await sha256.ComputeHashAsync(new MemoryStream(bytes));
                 StringBuilder builder = new StringBuilder();
                 foreach (byte b in hashBytes)
                 {
