@@ -1,10 +1,11 @@
 ﻿using Albion.Network;
 using AlbionData.Models;
-using AlbionDataSharp.Responses;
+using AlbionDataSharp.Network;
+using AlbionDataSharp.Network.Responses;
 using System.Text;
 using System.Text.Json;
 
-namespace AlbionDataSharp.Handlers
+namespace AlbionDataSharp.Network.Handlers
 {
     public class JoinResponseHandler : ResponsePacketHandler<JoinResponse>
     {

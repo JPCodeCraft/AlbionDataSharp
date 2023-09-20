@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlbionDataSharp.Models
+namespace AlbionDataSharp.Network.Nats
 {
     internal class NatsSettings
     {
@@ -15,6 +15,5 @@ namespace AlbionDataSharp.Models
         public required string AlbionDataWestServer { get; set; }
         public required string[] PrivateWestServers { get; set; }
         public required string[] PrivateEastServers { get; set; }
-
     }
 }

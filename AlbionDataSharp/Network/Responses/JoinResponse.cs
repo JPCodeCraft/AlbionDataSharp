@@ -3,8 +3,9 @@ using System.Text.Json;
 using AlbionData.Models;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using AlbionDataSharp.State;
 
-namespace AlbionDataSharp.Responses
+namespace AlbionDataSharp.Network.Responses
 {
     public class JoinResponse : BaseOperation
     {

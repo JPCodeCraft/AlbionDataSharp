@@ -1,11 +1,7 @@
 ﻿using Albion.Network;
-using AlbionData.Models;
 using AlbionDataSharp.Requests;
-using AlbionDataSharp.Responses;
-using System.Text;
-using System.Text.Json;
 
-namespace AlbionDataSharp.Handlers
+namespace AlbionDataSharp.Network.Handlers
 {
     public class AuctionGetItemAverageStatsRequestHandler : RequestPacketHandler<AuctionGetItemAverageStatsRequest>
     {

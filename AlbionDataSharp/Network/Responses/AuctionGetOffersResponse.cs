@@ -3,17 +3,20 @@ using System.Text.Json;
 using AlbionData.Models;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using AlbionDataSharp.State;
 
-namespace AlbionDataSharp.Responses
+namespace AlbionDataSharp.Network.Responses
 {
-    public class AuctionGetRequestsResponse : BaseOperation
+    public class AuctionGetOffersResponse : BaseOperation
     {
         public readonly MarketUpload marketUpload = new();
 
-        public AuctionGetRequestsResponse(Dictionary<byte, object> parameters) : base(parameters)
+        public AuctionGetOffersResponse(Dictionary<byte, object> parameters) : base(parameters)
         {
             Log.Debug("Got {PacketType} packet.", GetType());
+
             if (!PlayerStatus.CheckLocationIDIsSet()) return;
+
             try
             {
                 if (parameters.TryGetValue(0, out object orders))

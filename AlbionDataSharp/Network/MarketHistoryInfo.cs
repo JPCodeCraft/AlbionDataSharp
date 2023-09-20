@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlbionDataSharp.Models
+namespace AlbionDataSharp.Network
 {
     internal class MarketHistoryInfo
     {
