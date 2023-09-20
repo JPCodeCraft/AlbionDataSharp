@@ -1,9 +1,7 @@
 ﻿using Albion.Network;
-using AlbionData.Models;
+using AlbionDataSharp.Network.Http;
 using AlbionDataSharp.Network.Nats;
 using AlbionDataSharp.Network.Responses;
-using System.Text;
-using System.Text.Json;
 
 namespace AlbionDataSharp.Network.Handlers
 {
@@ -18,7 +16,9 @@ namespace AlbionDataSharp.Network.Handlers
             if (value.marketHistoriesUpload.MarketHistories.Count > 0)
             {
                 NatsManager natsManager = new();
+                PowManager powManager = new();
                 natsManager.Upload(value.marketHistoriesUpload);
+                await powManager.Upload(value.marketHistoriesUpload);
             }
             await Task.CompletedTask;
         }

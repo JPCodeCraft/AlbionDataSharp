@@ -1,6 +1,5 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Network;
-using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace AlbionDataSharp.State
@@ -9,7 +8,7 @@ namespace AlbionDataSharp.State
     {
         private static string locationID;
         private static string playerName;
-        private static Servers server = Servers.Unknown;
+        private static Server server = Server.Unknown;
         //CacheSize limit size of messages in cache
         private const ulong cacheSize = 8192;
 
@@ -35,7 +34,7 @@ namespace AlbionDataSharp.State
                 Log.Information("Player name set to {PlayerName}", PlayerName);
             }
         }
-        public static Servers Server
+        public static Server Server
         {
             get => server;
             set

@@ -1,29 +1,18 @@
 ﻿using AlbionData.Models;
-using Microsoft.Extensions.Logging;
-using NATS.Client;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Serilog;
-using Microsoft.Extensions.Configuration;
-using System.Net.NetworkInformation;
-using System.Reflection;
+using AlbionDataSharp.Config;
 using AlbionDataSharp.State;
+using NATS.Client;
+using Serilog;
+using System.Text.Json;
 
 namespace AlbionDataSharp.Network.Nats
 {
     internal class NatsManager
     {
-        private NatsSettings natsSettings;
         Options opts = ConnectionFactory.GetDefaultOptions();
 
         public NatsManager()
         {
-            natsSettings = ConfigurationHelper.config.GetRequiredSection("Nats").Get<NatsSettings>();
             //hacks so nats won't log it's default event to console
             opts.DisconnectedEventHandler = (sender, args) => { };
             opts.ClosedEventHandler = (sender, args) => { };
@@ -43,14 +32,14 @@ namespace AlbionDataSharp.Network.Nats
                 //private servers
                 switch (PlayerStatus.Server)
                 {
-                    case Servers.Unknown:
+                    case Server.Unknown:
                         Log.Warning("Server has not been set. Can't upload to NATS. Please change maps.");
                         return;
-                    case Servers.East:
-                        privateServers = natsSettings.PrivateEastServers;
+                    case Server.East:
+                        privateServers = ConfigurationHelper.natsSettings.PrivateEastServers;
                         break;
-                    case Servers.West:
-                        privateServers = natsSettings.PrivateWestServers;
+                    case Server.West:
+                        privateServers = ConfigurationHelper.natsSettings.PrivateWestServers;
                         break;
                 };
                 foreach (var url in privateServers)
@@ -59,7 +48,7 @@ namespace AlbionDataSharp.Network.Nats
 
                     using (IConnection c = new ConnectionFactory().CreateConnection(opts))
                     {
-                        c.Publish(natsSettings.MarketOrdersIngestSubject, data);
+                        c.Publish(ConfigurationHelper.natsSettings.MarketOrdersIngestSubject, data);
                         c.Flush(500);
                     }
 
@@ -68,37 +57,6 @@ namespace AlbionDataSharp.Network.Nats
                     else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to private NATS [{natsServer}].", requests, url);
                     else if (offers == 0 && requests == 0) Log.Debug("Published nothing to private NATS [{natsServer}].", url);
                     else Log.Information("Published {amount} offers and {amount} requests to private NATS [{natsServer}].", offers, requests, url);
-                }
-
-                //AlbionData servers
-                switch (PlayerStatus.Server)
-                {
-                    case Servers.Unknown:
-                        Log.Warning("Server has not been set. Can't upload to NATS. Please change maps.");
-                        return;
-                    case Servers.East:
-                        opts.Url = natsSettings.AlbionDataEastServer;
-                        break;
-                    case Servers.West:
-                        opts.Url = natsSettings.AlbionDataWestServer;
-                        break;
-                };
-
-                if (!string.IsNullOrEmpty(opts.Url))
-                {
-                    using (IConnection c = new ConnectionFactory().CreateConnection(opts))
-                    {
-                        c.Publish(natsSettings.MarketOrdersIngestSubject, data);
-                        c.Flush(500);
-                    }
-
-                    //logging
-                    offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
-                    requests = marketUpload.Orders.Where(x => x.AuctionType == "request").Count();
-                    if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to AlbionData NATS [{natsServer}].", offers, opts.Url);
-                    else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to AlbionData NATS [{natsServer}].", requests, opts.Url);
-                    else if (offers == 0 && requests == 0) Log.Information("Published nothing to AlbionData NATS [{natsServer}].", opts.Url);
-                    else Log.Information("Published {amount} offers and {amount} requests to AlbionData NATS [{natsServer}].", offers, requests, opts.Url);
                 }
             }
             catch (Exception ex)
@@ -117,14 +75,14 @@ namespace AlbionDataSharp.Network.Nats
                 //private servers
                 switch (PlayerStatus.Server)
                 {
-                    case Servers.Unknown:
+                    case Server.Unknown:
                         Log.Warning("Server has not been set. Can't upload to NATS. Please change maps.");
                         return;
-                    case Servers.East:
-                        privateServers = natsSettings.PrivateEastServers;
+                    case Server.East:
+                        privateServers = ConfigurationHelper.natsSettings.PrivateEastServers;
                         break;
-                    case Servers.West:
-                        privateServers = natsSettings.PrivateWestServers;
+                    case Server.West:
+                        privateServers = ConfigurationHelper.natsSettings.PrivateWestServers;
                         break;
                 };
                 foreach (var url in privateServers)
@@ -133,7 +91,7 @@ namespace AlbionDataSharp.Network.Nats
 
                     using (IConnection c = new ConnectionFactory().CreateConnection(opts))
                     {
-                        c.Publish(natsSettings.MarketHistoriesIngestSubject, data);
+                        c.Publish(ConfigurationHelper.natsSettings.MarketHistoriesIngestSubject, data);
                         c.Flush(500);
                     }
 
@@ -142,35 +100,6 @@ namespace AlbionDataSharp.Network.Nats
                         marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
                         marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, url);
                 }
-
-                //AlbionData servers
-                switch (PlayerStatus.Server)
-                {
-                    case Servers.Unknown:
-                        Log.Warning("Server has not been set. Can't upload to NATS. Please change maps.");
-                        return;
-                    case Servers.East:
-                        opts.Url = natsSettings.AlbionDataEastServer;
-                        break;
-                    case Servers.West:
-                        opts.Url = natsSettings.AlbionDataWestServer;
-                        break;
-                };
-
-                if (!string.IsNullOrEmpty(opts.Url))
-                {
-                    using (IConnection c = new ConnectionFactory().CreateConnection(opts))
-                    {
-                        c.Publish(natsSettings.MarketHistoriesIngestSubject, data);
-                        c.Flush(500);
-                    }
-
-                    //logging
-                    Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to AlbionData NATS [{natsServer}].",
-                        marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
-                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, opts.Url);
-                }
-
             }
             catch (Exception ex)
             {

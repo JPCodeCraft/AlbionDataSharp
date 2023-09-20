@@ -68,15 +68,15 @@ namespace AlbionDataSharp.Network
                         var srcIp = (packet.ParentPacket as IPv4Packet)?.SourceAddress?.ToString();
                         if (srcIp == null || string.IsNullOrEmpty(srcIp))
                         {
-                            PlayerStatus.Server = Servers.Unknown;
+                            PlayerStatus.Server = Server.Unknown;
                         }
                         else if (srcIp.Contains("5.188.125."))
                         {
-                            PlayerStatus.Server = Servers.West;
+                            PlayerStatus.Server = Server.West;
                         }
                         else if (srcIp!.Contains("5.45.187."))
                         {
-                            PlayerStatus.Server = Servers.East;
+                            PlayerStatus.Server = Server.East;
                         }
                     }
                     receiver.ReceivePacket(packet.PayloadData);
