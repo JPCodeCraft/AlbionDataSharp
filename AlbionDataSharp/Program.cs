@@ -1,12 +1,9 @@
-﻿using AlbionDataSharp.Config;
-using AlbionDataSharp.Network;
-using AlbionDataSharp.State;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Serilog;
 using Microsoft.Extensions.Hosting;
-using Serilog;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using AlbionDataSharp.Network;
+using AlbionDataSharp.Config;
 
 namespace AlbionDataSharp
 {
@@ -15,28 +12,18 @@ namespace AlbionDataSharp
 
         private static void Main(string[] args)
         {
-            var builder = Host.CreateDefaultBuilder(args)
-                //AUTOFAC CONFIG
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                .ConfigureContainer<ContainerBuilder>(builder =>
-                {
-                    builder.RegisterType<PlayerStatus>().SingleInstance();
-                })
-                //SERVICES CONFIG
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddHostedService<NetworkListener>();
-                    services.AddSerilog(config =>
-                    {
-                        config.ReadFrom.Configuration(hostContext.Configuration);
+            HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-                    });
-                });
+            builder.Services.AddHostedService<NetworkListener>();
+            builder.Services.AddSerilog(config =>
+            {
+                config.ReadFrom.Configuration(builder.Configuration);
 
+            });
             IHost host = builder.Build();
 
             ConfigurationHelper.Initialize(host.Services.GetRequiredService<IConfiguration>());
-
+            
             host.Run();
         }
 
