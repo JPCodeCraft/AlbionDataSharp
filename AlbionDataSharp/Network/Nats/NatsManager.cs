@@ -49,7 +49,7 @@ namespace AlbionDataSharp.Network.Nats
                     using (IConnection c = new ConnectionFactory().CreateConnection(opts))
                     {
                         c.Publish(ConfigurationHelper.natsSettings.MarketOrdersIngestSubject, data);
-                        c.Flush(2000);
+                        c.Flush(10000);
                     }
 
                     //logging
@@ -92,7 +92,7 @@ namespace AlbionDataSharp.Network.Nats
                     using (IConnection c = new ConnectionFactory().CreateConnection(opts))
                     {
                         c.Publish(ConfigurationHelper.natsSettings.MarketHistoriesIngestSubject, data);
-                        c.Flush(2000);
+                        c.Flush(10000);
                     }
 
                     //logging
