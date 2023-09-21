@@ -12,6 +12,7 @@ namespace AlbionDataSharp.Network.Http
 {
     public class PowManager
     {
+        private static readonly RandomNumberGenerator rng = RandomNumberGenerator.Create();
         public async Task Upload(MarketUpload marketUpload)
         {
             var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
@@ -142,21 +143,23 @@ namespace AlbionDataSharp.Network.Http
         private string RandomHex(int n)
         {
             byte[] bytes = new byte[n];
-            using (var rng = RandomNumberGenerator.Create())
+
+            rng.GetBytes(bytes);
+            StringBuilder result = new StringBuilder(n * 2);
+            foreach (byte b in bytes)
             {
-                rng.GetBytes(bytes);
+                result.Append(b.ToString("x2"));
             }
-            var result = BitConverter.ToString(bytes).Replace("-", "").ToLower();
-            return result;
+            return result.ToString();
         }
 
         // Converts a hexadecimal string to a binary string e.g.: 0110011...
         public string ToBinaryBytes(string s)
         {
-            StringBuilder buffer = new StringBuilder();
-            for (int i = 0; i < s.Length; i++)
+            StringBuilder buffer = new StringBuilder(s.Length * 8);
+            foreach (char c in s)
             {
-                buffer.AppendFormat("{0}", Convert.ToString(s[i], 2).PadLeft(8, '0'));
+                buffer.Append(Convert.ToString(c, 2).PadLeft(8, '0'));
             }
             return buffer.ToString();
         }
