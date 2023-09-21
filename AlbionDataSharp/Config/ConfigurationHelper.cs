@@ -5,11 +5,11 @@ namespace AlbionDataSharp.Config
     internal static class ConfigurationHelper
     {
         public static IConfiguration config;
-        public static NatsSettings natsSettings;
+        public static NetworkSettings networkSettings;
         public static void Initialize(IConfiguration Configuration)
         {
             config = Configuration;
-            natsSettings = config.GetRequiredSection("Nats").Get<NatsSettings>();
+            networkSettings = config.GetRequiredSection("Network").Get<NetworkSettings>();
         }
     }
 }
