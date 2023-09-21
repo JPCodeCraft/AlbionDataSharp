@@ -36,10 +36,10 @@ namespace AlbionDataSharp.Network.Nats
                         Log.Warning("Server has not been set. Can't upload to NATS. Please change maps.");
                         return;
                     case Server.East:
-                        privateServers = ConfigurationHelper.natsSettings.PrivateEastServers;
+                        privateServers = ConfigurationHelper.networkSettings.PrivateEastServers;
                         break;
                     case Server.West:
-                        privateServers = ConfigurationHelper.natsSettings.PrivateWestServers;
+                        privateServers = ConfigurationHelper.networkSettings.PrivateWestServers;
                         break;
                 };
                 foreach (var url in privateServers)
@@ -48,7 +48,7 @@ namespace AlbionDataSharp.Network.Nats
 
                     using (IConnection c = new ConnectionFactory().CreateConnection(opts))
                     {
-                        c.Publish(ConfigurationHelper.natsSettings.MarketOrdersIngestSubject, data);
+                        c.Publish(ConfigurationHelper.networkSettings.MarketOrdersIngestSubject, data);
                         c.Flush(10000);
                     }
 
@@ -79,10 +79,10 @@ namespace AlbionDataSharp.Network.Nats
                         Log.Warning("Server has not been set. Can't upload to NATS. Please change maps.");
                         return;
                     case Server.East:
-                        privateServers = ConfigurationHelper.natsSettings.PrivateEastServers;
+                        privateServers = ConfigurationHelper.networkSettings.PrivateEastServers;
                         break;
                     case Server.West:
-                        privateServers = ConfigurationHelper.natsSettings.PrivateWestServers;
+                        privateServers = ConfigurationHelper.networkSettings.PrivateWestServers;
                         break;
                 };
                 foreach (var url in privateServers)
@@ -91,7 +91,7 @@ namespace AlbionDataSharp.Network.Nats
 
                     using (IConnection c = new ConnectionFactory().CreateConnection(opts))
                     {
-                        c.Publish(ConfigurationHelper.natsSettings.MarketHistoriesIngestSubject, data);
+                        c.Publish(ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject, data);
                         c.Flush(10000);
                     }
 

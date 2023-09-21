@@ -23,7 +23,7 @@ namespace AlbionDataSharp.Network.Http
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketUpload, new JsonSerializerOptions { IncludeFields = true });
                 var powRequest = await GetPowRequest();
                 var powSolution = await SolvePow(powRequest);
-                if (await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.natsSettings.MarketOrdersIngestSubject))
+                if (await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.networkSettings.MarketOrdersIngestSubject))
                 {
                     if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to AODataProject.", offers);
                     else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to AODataProject.", requests);
@@ -45,7 +45,7 @@ namespace AlbionDataSharp.Network.Http
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketHistoriesUpload, new JsonSerializerOptions { IncludeFields = true });
                 var powRequest = await GetPowRequest();
                 var powSolution = await SolvePow(powRequest);
-                if (await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.natsSettings.MarketHistoriesIngestSubject))
+                if (await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject))
                 {
                     Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to AODataProject.",
                         marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
@@ -71,10 +71,10 @@ namespace AlbionDataSharp.Network.Http
                     Log.Warning("Server has not been set. Can't GetPow. Please change maps.");
                     return await Task.FromResult<PowRequest>(new PowRequest());
                 case Server.East:
-                    fullURL = ConfigurationHelper.natsSettings.AlbionDataEastServer + "/pow";
+                    fullURL = ConfigurationHelper.networkSettings.AlbionDataEastServer + "/pow";
                     break;
                 case Server.West:
-                    fullURL = ConfigurationHelper.natsSettings.AlbionDataWestServer + "/pow";
+                    fullURL = ConfigurationHelper.networkSettings.AlbionDataWestServer + "/pow";
                     break;
             };
 
@@ -107,10 +107,10 @@ namespace AlbionDataSharp.Network.Http
                     Log.Warning("Server has not been set. Can't GetPow. Please change maps.");
                     return false;
                 case Server.East:
-                    fullURL = ConfigurationHelper.natsSettings.AlbionDataEastServer + "/pow/" + topic;
+                    fullURL = ConfigurationHelper.networkSettings.AlbionDataEastServer + "/pow/" + topic;
                     break;
                 case Server.West:
-                    fullURL = ConfigurationHelper.natsSettings.AlbionDataWestServer + "/pow/" + topic;
+                    fullURL = ConfigurationHelper.networkSettings.AlbionDataWestServer + "/pow/" + topic;
                     break;
             };
 
@@ -172,7 +172,7 @@ namespace AlbionDataSharp.Network.Http
             var sw = Stopwatch.StartNew();
 
             string solution = "";
-            int threadLimit = Math.Max(1, ((int)(Environment.ProcessorCount * 0.25f)));
+            int threadLimit = Math.Max(1, ((int)(Environment.ProcessorCount * ConfigurationHelper.networkSettings.ThreadLimitPercentage)));
             var tasks = new List<Task<string>>();
             var tokenSource = new CancellationTokenSource();
             CancellationToken ct = tokenSource.Token;

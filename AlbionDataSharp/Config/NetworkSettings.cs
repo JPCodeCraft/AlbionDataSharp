@@ -1,6 +1,6 @@
 ﻿namespace AlbionDataSharp.Config
 {
-    internal class NatsSettings
+    internal class NetworkSettings
     {
         public required string MarketOrdersIngestSubject { get; set; }
         public required string MarketHistoriesIngestSubject { get; set; }
@@ -9,5 +9,6 @@
         public required string AlbionDataWestServer { get; set; }
         public required string[] PrivateWestServers { get; set; }
         public required string[] PrivateEastServers { get; set; }
+        public required float ThreadLimitPercentage { get; set; }
     }
 }
