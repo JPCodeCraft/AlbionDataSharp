@@ -2,6 +2,7 @@
 using AlbionDataSharp.Config;
 using AlbionDataSharp.State;
 using Serilog;
+using System.Diagnostics;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -150,7 +151,7 @@ namespace AlbionDataSharp.Network.Http
         }
 
         // Converts a hexadecimal string to a binary string e.g.: 0110011...
-        public static string ToBinaryBytes(string s)
+        public string ToBinaryBytes(string s)
         {
             StringBuilder buffer = new StringBuilder();
             for (int i = 0; i < s.Length; i++)
@@ -165,26 +166,49 @@ namespace AlbionDataSharp.Network.Http
         // returns the solution
         private async Task<string> SolvePow(PowRequest pow)
         {
+            var sw = Stopwatch.StartNew();
+
             string solution = "";
+            int threadLimit = Math.Max(1, ((int)(Environment.ProcessorCount * 0.25f)));
+            var tasks = new List<Task<string>>();
+            var tokenSource = new CancellationTokenSource();
+            CancellationToken ct = tokenSource.Token;
+            for (int i = 0; i < threadLimit; i++)
+            {
+                tasks.Add(Task.Run(() => ProcessPow(pow, ct), ct));
+            }
+
+            solution = await Task.WhenAny(tasks).Result;
+            tokenSource.Cancel();
+            sw.Stop();
+            Log.Debug("Solved PoW {key} with solution {solution} in {time} ms.", pow.Key, solution, sw.ElapsedMilliseconds.ToString());
+            return solution;
+        }
+
+        private string ProcessPow(PowRequest pow, CancellationToken token)
+        {
             while (true)
             {
                 string randhex = RandomHex(8);
-                string hash = ToBinaryBytes(await GetHash("aod^" + randhex + "^" + pow.Key));
+                string hash = ToBinaryBytes(GetHash("aod^" + randhex + "^" + pow.Key));
                 if (hash.StartsWith(pow.Wanted))
                 {
-                    solution = randhex;
-                    Log.Debug("Solved PoW {key} with solution {solution}.", pow.Key, solution);
-                    break;
+                    return randhex;
+                }
+                if (token.IsCancellationRequested)
+                {
+                    Log.Verbose("canceled PoW async task because of {token}.", nameof(token.IsCancellationRequested));
+                    return "";
                 }
             }
-            return solution;
         }
-        private async Task<string> GetHash(string input)
+
+        private string GetHash(string input)
         {
             using (SHA256 sha256 = SHA256.Create())
             {
                 byte[] bytes = Encoding.UTF8.GetBytes(input);
-                byte[] hashBytes = await sha256.ComputeHashAsync(new MemoryStream(bytes));
+                byte[] hashBytes = sha256.ComputeHash(new MemoryStream(bytes));
                 StringBuilder builder = new StringBuilder();
                 foreach (byte b in hashBytes)
                 {
