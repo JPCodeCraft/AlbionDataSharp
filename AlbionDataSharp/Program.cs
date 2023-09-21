@@ -1,9 +1,10 @@
-﻿using Serilog;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+﻿using AlbionDataSharp.Config;
 using AlbionDataSharp.Network;
-using AlbionDataSharp.Config;
+using AlbionDataSharp.UI;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace AlbionDataSharp
 {
@@ -18,12 +19,13 @@ namespace AlbionDataSharp
             builder.Services.AddSerilog(config =>
             {
                 config.ReadFrom.Configuration(builder.Configuration);
+                config.WriteTo.Sink(new DelegatingSink(ConsoleManager.AddStateUpdate));
 
             });
             IHost host = builder.Build();
 
             ConfigurationHelper.Initialize(host.Services.GetRequiredService<IConfiguration>());
-            
+
             host.Run();
         }
 

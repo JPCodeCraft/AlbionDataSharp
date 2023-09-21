@@ -1,6 +1,6 @@
 ﻿namespace AlbionDataSharp.State
 {
-    internal enum Server
+    public enum Server
     {
         Unknown = 0,
         East = 2,
