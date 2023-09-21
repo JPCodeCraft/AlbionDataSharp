@@ -7,35 +7,37 @@ namespace AlbionDataSharp.UI
 {
     public class ConsoleManager
     {
-        static Queue<LogEvent> stateUpdates = new Queue<LogEvent>();
-        public void UpdateTitle(string title)
+        private static Queue<LogEvent> stateUpdates = new Queue<LogEvent>();
+        public static void UpdateTitle(string title)
         {
             Console.SetCursorPosition(0, ConfigurationHelper.uiSettings.TitleLine);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write(title);
             Console.ResetColor();
         }
-        public void UpdateName(string name)
+        public static void UpdateName(string name)
         {
-            Console.SetCursorPosition(0, ConfigurationHelper.uiSettings.LocationLine);
+            Console.SetCursorPosition(0, ConfigurationHelper.uiSettings.NameLine);
             Console.Write("Welcome ");
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine($"{name}".PadRight(50, ' '));
+            Console.Write($"{name}");
+            Console.ResetColor();
+            Console.Write($"!".PadRight(50, ' '));
             Console.ResetColor();
         }
-        public void UpdateLocation(Location location)
+        public static void UpdateLocation(Location location)
         {
             Console.SetCursorPosition(0, ConfigurationHelper.uiSettings.LocationLine);
-            Console.Write("Your location was set to ");
+            Console.Write("Your location is ");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"{location}".PadRight(50, ' '));
             Console.ResetColor();
         }
-        public void UpdateServer(Server server)
+        public static void UpdateServer(Server server)
         {
             Console.SetCursorPosition(0, ConfigurationHelper.uiSettings.ServerLine);
-            Console.Write("Your server was set to ");
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("Your server is ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"{server}".PadRight(50, ' '));
             Console.ResetColor();
         }
@@ -56,8 +58,8 @@ namespace AlbionDataSharp.UI
                 Console.CursorLeft = 0;
 
                 var message = stateUpdate.RenderMessage();
-                var timestamp = stateUpdate.Timestamp.ToString("yy-MM-dd HH:mm:ss");
-                var level = stateUpdate.Level.ToString().ToUpper();
+                var timestamp = stateUpdate.Timestamp.ToString("yy.MM.dd HH:mm:ss");
+                var level = stateUpdate.Level.ToString().ToUpper().Substring(0, 3);
 
                 var formattedMessage = $"{timestamp} [{level}] {message}";
 

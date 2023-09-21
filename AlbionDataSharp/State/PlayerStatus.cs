@@ -1,5 +1,6 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Network;
+using AlbionDataSharp.UI;
 using Serilog;
 
 namespace AlbionDataSharp.State
@@ -22,6 +23,7 @@ namespace AlbionDataSharp.State
             {
                 locationID = value;
                 Log.Information("Player location set to {Location}", LocationID);
+                ConsoleManager.UpdateLocation((Location)int.Parse(LocationID));
             }
         }
         public static string PlayerName
@@ -32,6 +34,7 @@ namespace AlbionDataSharp.State
                 if (playerName == value) return;
                 playerName = value;
                 Log.Information("Player name set to {PlayerName}", PlayerName);
+                ConsoleManager.UpdateName(PlayerName);
             }
         }
         public static Server Server
@@ -42,6 +45,7 @@ namespace AlbionDataSharp.State
                 if (server == value) return;
                 server = value;
                 Log.Information("Server set to {Server}", Server);
+                ConsoleManager.UpdateServer(Server);
             }
         }
 
