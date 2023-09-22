@@ -26,7 +26,6 @@ namespace AlbionDataSharp
 
             ConfigurationHelper.Initialize(host.Services.GetRequiredService<IConfiguration>());
             ConsoleManager.Initialize();
-            ConsoleManager.MonitorWindowSizeAsync();
             host.Run();
         }
 

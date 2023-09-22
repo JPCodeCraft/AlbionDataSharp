@@ -101,9 +101,8 @@ namespace AlbionDataSharp.Network.Nats
                     ConsoleManager.IncrementHistoriesSent(serverInfo.Name, marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale);
 
                     //logging
-                    Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to {server}.",
-                        marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
-                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, serverInfo.Name);
+                    Log.Information("Published {Amount} histories in timescale {Timescale} to {server}.",
+                        marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale, serverInfo.Name);
                 }
             }
             catch (Exception ex)

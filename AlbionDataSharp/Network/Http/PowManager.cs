@@ -54,9 +54,8 @@ namespace AlbionDataSharp.Network.Http
                 {
                     ConsoleManager.IncrementHistoriesSent(uploadReturn.serverName, marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale);
 
-                    Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to {server}.",
-                        marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
-                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, uploadReturn.serverName);
+                    Log.Information("Published {Amount} histories in timescale {Timescale} to {server}.",
+                        marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale, uploadReturn.serverName);
                 }
 
             }

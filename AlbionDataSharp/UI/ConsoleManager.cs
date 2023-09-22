@@ -1,6 +1,5 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Config;
-using Serilog;
 using Serilog.Events;
 using Spectre.Console;
 using System.Collections.Concurrent;
@@ -9,10 +8,18 @@ namespace AlbionDataSharp.UI
 {
     public class ConsoleManager
     {
-        private static readonly Table table = new Table()
-            .AddColumns("Server", "Offers Sent", "Requests Sent", "Histories(Month) Sent", "Histories(Week) Sent", "Histories(Day) Sent");
-
-        private static readonly Dictionary<string, int> serverRowIndices = new Dictionary<string, int>();
+        private static bool shouldRewrite = false;
+        private static readonly Table logTable = new Table()
+            .Title("[bold yellow]Log Events[/]")
+            .Border(TableBorder.Double)
+            .AddColumns("Log")
+            .HideHeaders()
+            .Expand();
+        private static readonly Table serversTable = new Table()
+            .Title("[bold yellow]Server Statistics - Data Sent[/]")
+            .Border(TableBorder.Double)
+            .AddColumns("Server", "Offers", "Requests", "Histories (Month)", "Histories (Week)", "Histories (Day)")
+            .Expand();
 
         private static ConcurrentQueue<LogEvent> stateUpdates = new ConcurrentQueue<LogEvent>();
 
@@ -20,17 +27,12 @@ namespace AlbionDataSharp.UI
         private static ConcurrentDictionary<string, int> requestsSentCount = new ConcurrentDictionary<string, int>();
         private static ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>> historiesSentCount =
             new ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>>();
-        public static void Initialize()
+
+        public static async Task Initialize()
         {
-            // Initialize table with server names and empty data
-            var allServers = GetAllServers();
-            int rowIndex = 0;
-            foreach (var server in allServers)
-            {
-                table.AddRow(server, "0", "0", "0", "0", "0");
-                serverRowIndices[server] = rowIndex++;
-            }
-            AnsiConsole.Write(table);
+            serversTable.Columns.ToList().ForEach(x => x.Alignment = Justify.Center);
+            WriteTable();
+            await Monitor();
         }
         private static List<string> GetAllServers()
         {
@@ -53,75 +55,125 @@ namespace AlbionDataSharp.UI
             }
             return allServers;
         }
-        private static void UpdateTableCell(string server, int columnIndex, string value)
-        {
-            if (serverRowIndices.TryGetValue(server, out int rowIndex))
-            {
-                table.UpdateCell(rowIndex, columnIndex, value);
-            }
-            ReWriteTable();
-        }
+
         public static void IncrementOffersSent(string server, int count)
         {
             offersSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
-            UpdateTableCell(server, 1, offersSentCount[server].ToString());
+            Flag();
         }
 
         public static void IncrementRequestsSent(string server, int count)
         {
             requestsSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
-            UpdateTableCell(server, 2, requestsSentCount[server].ToString());
+            Flag();
         }
 
         public static void IncrementHistoriesSent(string server, int count, Timescale timescale)
         {
             var serverCounts = historiesSentCount.GetOrAdd(server, new ConcurrentDictionary<Timescale, int>());
             serverCounts.AddOrUpdate(timescale, count, (key, oldValue) => oldValue + count);
-            int columnIndex = timescale switch
-            {
-                Timescale.Month => 3,
-                Timescale.Week => 4,
-                Timescale.Day => 5,
-                _ => 3
-            };
-            UpdateTableCell(server, columnIndex, serverCounts[timescale].ToString());
+            Flag();
         }
 
         public static void AddStateUpdate(LogEvent logEvent)
         {
             stateUpdates.Enqueue(logEvent);
-            if (stateUpdates.Count > ConfigurationHelper.uiSettings.StateLineCount)
+            if (stateUpdates.Count > ConfigurationHelper.uiSettings.MaxLogEntries)
             {
-                if (!stateUpdates.TryDequeue(out _))
-                {
-                    Log.Warning("Failed to dequeue a state update. Queue might be empty.");
-                }
+                stateUpdates.TryDequeue(out _);
             }
+            Flag();
         }
 
-        public static async Task MonitorWindowSizeAsync()
+        public static async Task Monitor()
         {
             int currentWidth = Console.WindowWidth;
-            int currentHeight = Console.WindowHeight;
 
             while (true)
             {
-                if (currentWidth != Console.WindowWidth || currentHeight != Console.WindowHeight)
+                if (currentWidth != Console.WindowWidth)
                 {
-                    // Window size changed, redraw the table
-                    ReWriteTable();
-
+                    Flag();
                     currentWidth = Console.WindowWidth;
-                    currentHeight = Console.WindowHeight;
                 }
-                await Task.Delay(500);
+                if (shouldRewrite)
+                {
+                    WriteTable();
+                }
+                await Task.Delay(100);
             }
         }
 
-        private static void ReWriteTable()
+        private static void Flag()
         {
+            shouldRewrite = true;
+        }
+
+        private static void WriteTable()
+        {
+            // Clear existing rows
+            serversTable.Rows.Clear();
+            logTable.Rows.Clear();
+
+            // Fill serversTable with server names and data
+            var allServers = GetAllServers();
+            foreach (var server in allServers)
+            {
+                offersSentCount.TryGetValue(server, out int offers);
+                requestsSentCount.TryGetValue(server, out int requests);
+                historiesSentCount.TryGetValue(server, out var histories);
+
+                int historiesMonth = histories?.GetValueOrDefault(Timescale.Month) ?? 0;
+                int historiesWeek = histories?.GetValueOrDefault(Timescale.Week) ?? 0;
+                int historiesDay = histories?.GetValueOrDefault(Timescale.Day) ?? 0;
+
+                serversTable.AddRow(
+                    $"[bold blue]{server}[/]",
+                    offers.ToString(),
+                    requests.ToString(),
+                    historiesMonth.ToString(),
+                    historiesWeek.ToString(),
+                    historiesDay.ToString()
+                );
+            }
+
+            // Fill logTable with state updates
+            foreach (var logEvent in stateUpdates.Reverse())
+            {
+                var message = logEvent.RenderMessage();
+                var timestamp = logEvent.Timestamp.ToString("yy.MM.dd HH:mm:ss");
+                var level = logEvent.Level.ToString().ToUpper().Substring(0, 3);
+
+                var formattedMessage = $"{timestamp} ({level}) {message}";
+
+                // Set color based on log level
+                string colorCode = "white";
+                switch (logEvent.Level)
+                {
+                    case LogEventLevel.Information:
+                        colorCode = "cyan";
+                        break;
+                    case LogEventLevel.Warning:
+                        colorCode = "yellow";
+                        break;
+                    case LogEventLevel.Error:
+                        colorCode = "red";
+                        break;
+                    case LogEventLevel.Fatal:
+                        colorCode = "darkred";
+                        break;
+                }
+
+                logTable.AddRow(new Markup($"[{colorCode}]{formattedMessage}[/]"));
+            }
+
+            //Clear the console
             AnsiConsole.Clear();
-            AnsiConsole.Render(table);
+            //Write tables to console
+            AnsiConsole.Write(serversTable);
+            AnsiConsole.Write(logTable);
+
+            shouldRewrite = false;
         }
     }
 }
