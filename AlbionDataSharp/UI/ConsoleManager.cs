@@ -1,7 +1,9 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Config;
 using AlbionDataSharp.State;
+using Serilog;
 using Serilog.Events;
+using System.Collections.Concurrent;
 
 namespace AlbionDataSharp.UI
 {
@@ -13,7 +15,7 @@ namespace AlbionDataSharp.UI
 
         private static ConcurrentDictionary<string, int> offersSentCount = new ConcurrentDictionary<string, int>();
         private static ConcurrentDictionary<string, int> requestsSentCount = new ConcurrentDictionary<string, int>();
-        private static ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>> historiesSentCount = 
+        private static ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>> historiesSentCount =
             new ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>>();
 
         private static void IncrementOffersSent(string server, int count)
@@ -32,7 +34,8 @@ namespace AlbionDataSharp.UI
             serverCounts.AddOrUpdate(timescale, count, (key, oldValue) => oldValue + count);
         }
 
-        public static void UpdateOffersSent(string server, int count) {
+        public static void UpdateOffersSent(string server, int count)
+        {
             int line = ConfigurationHelper.uiSettings.OffersLine;
             EraseLine(line);
 
@@ -43,15 +46,15 @@ namespace AlbionDataSharp.UI
             int i = 0;
             foreach (var entry in offersSentCount)
             {
-                Console.ForegroundColor = i%2 == 0 ? ConsoleColor.Yellow : ConsoleColor.Green;
+                Console.ForegroundColor = i % 2 == 0 ? ConsoleColor.Yellow : ConsoleColor.Green;
                 WriteAndCount("| ", line, ref lineLength);
                 WriteAndCount(entry.Key, line, ref lineLength);  // Server name
                 Console.ResetColor();
                 WriteAndCount(" : ", line, ref lineLength);
-                WriteAndCount(entry.Value, line, ref lineLength);  // Count of offers
+                WriteAndCount(entry.Value.ToString(), line, ref lineLength);  // Count of offers
                 WriteAndCount(" | ", line, ref lineLength);
-            }       
-            Console.ResetColor(); 
+            }
+            Console.ResetColor();
         }
 
         public static void UpdateRequestsSent(string server, int count)
@@ -71,7 +74,7 @@ namespace AlbionDataSharp.UI
                 WriteAndCount(entry.Key, line, ref lineLength);  // Server name
                 Console.ResetColor();
                 WriteAndCount(" : ", line, ref lineLength);
-                WriteAndCount(entry.Value, line, ref lineLength);  // Count of requests
+                WriteAndCount(entry.Value.ToString(), line, ref lineLength);  // Count of requests
                 WriteAndCount(" | ", line, ref lineLength);
                 i++;
             }
@@ -88,9 +91,9 @@ namespace AlbionDataSharp.UI
             int lineLength = 0;
             WriteAndCount($"Number of histories ", line, ref lineLength);
             Console.ForegroundColor = ConsoleColor.Green;
-            WriteAndCount($"[{timescale}]", line, ref lineLength);    
+            WriteAndCount($"[{timescale}]", line, ref lineLength);
             Console.ResetColor();
-            WriteAndCount($"sent for", line, ref lineLength);    
+            WriteAndCount($"sent for", line, ref lineLength);
 
             int i = 0;
             foreach (var serverEntry in historiesSentCount)
@@ -131,7 +134,7 @@ namespace AlbionDataSharp.UI
         {
             int line = ConfigurationHelper.uiSettings.LocationLine;
             EraseLine(line);
-            
+
             int lineLength = 0;
             WriteAndCount("Your location is ", line, ref lineLength);
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -162,9 +165,9 @@ namespace AlbionDataSharp.UI
             int line = ConfigurationHelper.uiSettings.StateStartLine;
 
             foreach (var stateUpdate in stateUpdates.Reverse())
-            {                
+            {
                 EraseLine(line);
-                int lineLength = 0
+                int lineLength = 0;
 
                 var message = stateUpdate.RenderMessage();
                 var timestamp = stateUpdate.Timestamp.ToString("yy.MM.dd HH:mm:ss");
