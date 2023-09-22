@@ -215,8 +215,13 @@ namespace AlbionDataSharp.UI
 
         private static void WriteAndCount(string text, int line, ref int lineLength)
         {
-            Console.Write(text);
+            int exceed = text.Length + Console.GetCursorPosition().Left - (Console.WindowWidth - 1);
+            if (exceed > 0)
+            {
+                text = text.Substring(0, text.Length - exceed - 4) + "...";
+            }
             lineLength += text.Length;
+            Console.Write(text);
             lineLengths[line] = lineLength;
         }
 
