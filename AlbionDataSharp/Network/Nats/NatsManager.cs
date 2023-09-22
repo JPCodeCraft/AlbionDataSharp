@@ -53,10 +53,10 @@ namespace AlbionDataSharp.Network.Nats
                     }
 
                     //logging
-                    if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to private NATS [{natsServer}].", offers, serverInfo);
-                    else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to private NATS [{natsServer}].", requests, serverInfo);
-                    else if (offers == 0 && requests == 0) Log.Debug("Published nothing to private NATS [{natsServer}].", serverInfo);
-                    else Log.Information("Published {amount} offers and {amount} requests to private NATS [{natsServer}].", offers, requests, serverInfo);
+                    if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to {server}.", offers, serverInfo.Name);
+                    else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to {server}.", requests, serverInfo.Name);
+                    else if (offers == 0 && requests == 0) Log.Debug("Published nothing to {server}.", serverInfo.Name);
+                    else Log.Information("Published {amount} offers and {amount} requests to {server}.", offers, requests, serverInfo.Name);
                 }
             }
             catch (Exception ex)
@@ -96,9 +96,9 @@ namespace AlbionDataSharp.Network.Nats
                     }
 
                     //logging
-                    Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to private NATS [{natsServer}].",
+                    Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to {server}.",
                         marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
-                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, serverInfo);
+                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, serverInfo.Name);
                 }
             }
             catch (Exception ex)
