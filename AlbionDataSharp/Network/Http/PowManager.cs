@@ -23,12 +23,13 @@ namespace AlbionDataSharp.Network.Http
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketUpload, new JsonSerializerOptions { IncludeFields = true });
                 var powRequest = await GetPowRequest();
                 var powSolution = await SolvePow(powRequest);
-                if (await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.networkSettings.MarketOrdersIngestSubject))
+                var uploadReturn = await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.networkSettings.MarketOrdersIngestSubject);
+                if (uploadReturn.success)
                 {
-                    if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to AODataProject.", offers);
-                    else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to AODataProject.", requests);
-                    else if (offers == 0 && requests == 0) Log.Debug("Published nothing to AODataProject.");
-                    else Log.Information("Published {amount} offers and {amount} requests to AODataProject.", offers, requests);
+                    if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to {server}.", offers, uploadReturn.serverName);
+                    else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to {server}.", requests, uploadReturn.serverName);
+                    else if (offers == 0 && requests == 0) Log.Debug("Published nothing to {server}.", uploadReturn.serverName);
+                    else Log.Information("Published {amount} offers and {amount} requests to {server}.", offers, requests, uploadReturn.serverName);
                 }
 
             }
@@ -45,11 +46,12 @@ namespace AlbionDataSharp.Network.Http
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketHistoriesUpload, new JsonSerializerOptions { IncludeFields = true });
                 var powRequest = await GetPowRequest();
                 var powSolution = await SolvePow(powRequest);
-                if (await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject))
+                var uploadReturn = await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject);
+                if (uploadReturn.success)
                 {
-                    Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to AODataProject.",
+                    Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to {server}.",
                         marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
-                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale);
+                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, uploadReturn.serverName);
                 }
 
             }
@@ -74,7 +76,7 @@ namespace AlbionDataSharp.Network.Http
                     fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.East.Url + "/pow";
                     break;
                 case Server.West:
-                    fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.East.Url + "/pow";
+                    fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.West.Url + "/pow";
                     break;
             };
 
@@ -97,20 +99,23 @@ namespace AlbionDataSharp.Network.Http
         // Prooves to the server that a pow was solved by submitting
         // the pow's key, the solution and a nats msg as a POST request
         // the topic becomes part of the URL
-        private async Task<bool> UploadWithPow(PowRequest pow, string solution, byte[] natsmsg, string topic)
+        private async Task<(bool success, string serverName)> UploadWithPow(PowRequest pow, string solution, byte[] natsmsg, string topic)
         {
             string fullURL = string.Empty;
+            string serverName = string.Empty;
 
             switch (PlayerStatus.Server)
             {
                 case Server.Unknown:
                     Log.Warning("Server has not been set. Can't GetPow. Please change maps.");
-                    return false;
+                    return (false, string.Empty);
                 case Server.East:
                     fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.East.Url + "/pow/" + topic;
+                    serverName = ConfigurationHelper.networkSettings.AlbionDataServers.East.Name;
                     break;
                 case Server.West:
                     fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.West.Url + "/pow/" + topic;
+                    serverName = ConfigurationHelper.networkSettings.AlbionDataServers.West.Name;
                     break;
             };
 
@@ -132,11 +137,11 @@ namespace AlbionDataSharp.Network.Http
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 Log.Error("HTTP Error while proving pow. Returned: {0} ({1})", response.StatusCode, await response.Content.ReadAsStringAsync());
-                return false;
+                return (false, string.Empty);
             }
 
             Log.Debug("Successfully sent ingest request to {0}", fullURL);
-            return true;
+            return (true, serverName);
         }
 
         // Generates a random hex string e.g.: faa2743d9181dca5
