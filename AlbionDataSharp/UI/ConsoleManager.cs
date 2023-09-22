@@ -18,6 +18,11 @@ namespace AlbionDataSharp.UI
         private static ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>> historiesSentCount =
             new ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>>();
 
+        public ConsoleManager()
+        {
+            Console.CursorVisible = false;
+        }
+
         private static void IncrementOffersSent(string server, int count)
         {
             offersSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
@@ -46,13 +51,13 @@ namespace AlbionDataSharp.UI
             int i = 0;
             foreach (var entry in offersSentCount)
             {
-                Console.ForegroundColor = i % 2 == 0 ? ConsoleColor.Yellow : ConsoleColor.Green;
+                Console.ForegroundColor = i % 2 == 0 ? ConsoleColor.Yellow : ConsoleColor.Blue;
                 WriteAndCount("| ", line, ref lineLength);
                 WriteAndCount(entry.Key, line, ref lineLength);  // Server name
-                Console.ResetColor();
                 WriteAndCount(" : ", line, ref lineLength);
                 WriteAndCount(entry.Value.ToString(), line, ref lineLength);  // Count of offers
                 WriteAndCount(" | ", line, ref lineLength);
+                i++;
             }
             Console.ResetColor();
         }
@@ -69,10 +74,9 @@ namespace AlbionDataSharp.UI
             int i = 0;
             foreach (var entry in requestsSentCount)
             {
-                Console.ForegroundColor = i % 2 == 0 ? ConsoleColor.Yellow : ConsoleColor.Green;
+                Console.ForegroundColor = i % 2 == 0 ? ConsoleColor.Yellow : ConsoleColor.Blue;
                 WriteAndCount("| ", line, ref lineLength);
                 WriteAndCount(entry.Key, line, ref lineLength);  // Server name
-                Console.ResetColor();
                 WriteAndCount(" : ", line, ref lineLength);
                 WriteAndCount(entry.Value.ToString(), line, ref lineLength);  // Count of requests
                 WriteAndCount(" | ", line, ref lineLength);
@@ -89,11 +93,11 @@ namespace AlbionDataSharp.UI
             IncrementHistoriesSent(server, count, timescale);
 
             int lineLength = 0;
-            WriteAndCount($"Number of histories ", line, ref lineLength);
+            WriteAndCount($"Number of ", line, ref lineLength);
             Console.ForegroundColor = ConsoleColor.Green;
-            WriteAndCount($"[{timescale}]", line, ref lineLength);
+            WriteAndCount($"[{timescale}] ", line, ref lineLength);
             Console.ResetColor();
-            WriteAndCount($"sent for", line, ref lineLength);
+            WriteAndCount($"histories sent for", line, ref lineLength);
 
             int i = 0;
             foreach (var serverEntry in historiesSentCount)
@@ -204,7 +208,7 @@ namespace AlbionDataSharp.UI
         private static void EraseLine(int line)
         {
             Console.SetCursorPosition(0, line);
-            int eraseLength = lineLengths.ContainsKey(line) ? lineLengths[line] : Console.WindowWidth - 1;
+            int eraseLength = Math.Max(lineLengths.ContainsKey(line) ? lineLengths[line] : Console.WindowWidth - 1, Console.WindowWidth);
             Console.Write(new string(' ', eraseLength));
             Console.CursorLeft = 0;
         }

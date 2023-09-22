@@ -1,6 +1,7 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Config;
 using AlbionDataSharp.State;
+using AlbionDataSharp.UI;
 using NATS.Client;
 using Serilog;
 using System.Text.Json;
@@ -52,6 +53,9 @@ namespace AlbionDataSharp.Network.Nats
                         c.Flush(10000);
                     }
 
+                    ConsoleManager.UpdateOffersSent(serverInfo.Name, offers);
+                    ConsoleManager.UpdateRequestsSent(serverInfo.Name, requests);
+
                     //logging
                     if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to {server}.", offers, serverInfo.Name);
                     else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to {server}.", requests, serverInfo.Name);
@@ -94,6 +98,7 @@ namespace AlbionDataSharp.Network.Nats
                         c.Publish(ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject, data);
                         c.Flush(10000);
                     }
+                    ConsoleManager.UpdateHistoriesSent(serverInfo.Name, marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale);
 
                     //logging
                     Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to {server}.",
