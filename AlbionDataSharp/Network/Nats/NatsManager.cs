@@ -27,7 +27,7 @@ namespace AlbionDataSharp.Network.Nats
             {
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketUpload, new JsonSerializerOptions { IncludeFields = true });
 
-                string[] privateServers = Array.Empty<string>();
+                ServerInfo[] privateServers = Array.Empty<ServerInfo>();
 
                 //private servers
                 switch (PlayerStatus.Server)
@@ -42,9 +42,9 @@ namespace AlbionDataSharp.Network.Nats
                         privateServers = ConfigurationHelper.networkSettings.PrivateWestServers;
                         break;
                 };
-                foreach (var url in privateServers)
+                foreach (var serverInfo in privateServers)
                 {
-                    opts.Url = url;
+                    opts.Url = serverInfo.Url;
 
                     using (IConnection c = new ConnectionFactory().CreateConnection(opts))
                     {
@@ -53,10 +53,10 @@ namespace AlbionDataSharp.Network.Nats
                     }
 
                     //logging
-                    if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to private NATS [{natsServer}].", offers, url);
-                    else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to private NATS [{natsServer}].", requests, url);
-                    else if (offers == 0 && requests == 0) Log.Debug("Published nothing to private NATS [{natsServer}].", url);
-                    else Log.Information("Published {amount} offers and {amount} requests to private NATS [{natsServer}].", offers, requests, url);
+                    if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to private NATS [{natsServer}].", offers, serverInfo);
+                    else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to private NATS [{natsServer}].", requests, serverInfo);
+                    else if (offers == 0 && requests == 0) Log.Debug("Published nothing to private NATS [{natsServer}].", serverInfo);
+                    else Log.Information("Published {amount} offers and {amount} requests to private NATS [{natsServer}].", offers, requests, serverInfo);
                 }
             }
             catch (Exception ex)
@@ -70,7 +70,7 @@ namespace AlbionDataSharp.Network.Nats
             {
                 var data = JsonSerializer.SerializeToUtf8Bytes(marketHistoriesUpload, new JsonSerializerOptions { IncludeFields = true });
 
-                string[] privateServers = Array.Empty<string>();
+                ServerInfo[] privateServers = Array.Empty<ServerInfo>();
 
                 //private servers
                 switch (PlayerStatus.Server)
@@ -85,9 +85,9 @@ namespace AlbionDataSharp.Network.Nats
                         privateServers = ConfigurationHelper.networkSettings.PrivateWestServers;
                         break;
                 };
-                foreach (var url in privateServers)
+                foreach (var serverInfo in privateServers)
                 {
-                    opts.Url = url;
+                    opts.Url = serverInfo.Url;
 
                     using (IConnection c = new ConnectionFactory().CreateConnection(opts))
                     {
@@ -98,7 +98,7 @@ namespace AlbionDataSharp.Network.Nats
                     //logging
                     Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to private NATS [{natsServer}].",
                         marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
-                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, url);
+                        marketHistoriesUpload.LocationId, marketHistoriesUpload.Timescale, serverInfo);
                 }
             }
             catch (Exception ex)
