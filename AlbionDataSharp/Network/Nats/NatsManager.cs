@@ -53,8 +53,8 @@ namespace AlbionDataSharp.Network.Nats
                         c.Flush(10000);
                     }
 
-                    ConsoleManager.UpdateOffersSent(serverInfo.Name, offers);
-                    ConsoleManager.UpdateRequestsSent(serverInfo.Name, requests);
+                    ConsoleManager.IncrementOffersSent(serverInfo.Name, offers);
+                    ConsoleManager.IncrementRequestsSent(serverInfo.Name, requests);
 
                     //logging
                     if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to {server}.", offers, serverInfo.Name);
@@ -98,7 +98,7 @@ namespace AlbionDataSharp.Network.Nats
                         c.Publish(ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject, data);
                         c.Flush(10000);
                     }
-                    ConsoleManager.UpdateHistoriesSent(serverInfo.Name, marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale);
+                    ConsoleManager.IncrementHistoriesSent(serverInfo.Name, marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale);
 
                     //logging
                     Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to {server}.",

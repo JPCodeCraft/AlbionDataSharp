@@ -27,8 +27,8 @@ namespace AlbionDataSharp.Network.Http
                 var uploadReturn = await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.networkSettings.MarketOrdersIngestSubject);
                 if (uploadReturn.success)
                 {
-                    ConsoleManager.UpdateRequestsSent(uploadReturn.serverName, requests);
-                    ConsoleManager.UpdateOffersSent(uploadReturn.serverName, offers);
+                    ConsoleManager.IncrementRequestsSent(uploadReturn.serverName, requests);
+                    ConsoleManager.IncrementOffersSent(uploadReturn.serverName, offers);
                     if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to {server}.", offers, uploadReturn.serverName);
                     else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to {server}.", requests, uploadReturn.serverName);
                     else if (offers == 0 && requests == 0) Log.Debug("Published nothing to {server}.", uploadReturn.serverName);
@@ -52,7 +52,7 @@ namespace AlbionDataSharp.Network.Http
                 var uploadReturn = await UploadWithPow(powRequest, powSolution, data, ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject);
                 if (uploadReturn.success)
                 {
-                    ConsoleManager.UpdateHistoriesSent(uploadReturn.serverName, marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale);
+                    ConsoleManager.IncrementHistoriesSent(uploadReturn.serverName, marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.Timescale);
 
                     Log.Information("Published {Amount} histories for {ItemID} quality {Quality} in location {Location} timescale {Timescale} to {server}.",
                         marketHistoriesUpload.MarketHistories.Count, marketHistoriesUpload.AlbionId, marketHistoriesUpload.QualityLevel,
