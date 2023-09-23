@@ -13,6 +13,8 @@ namespace AlbionDataSharp
 
         private static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(GlobalExceptionHandler);
+
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
             builder.Services.AddHostedService<NetworkListener>();
@@ -27,6 +29,12 @@ namespace AlbionDataSharp
             ConfigurationHelper.Initialize(host.Services.GetRequiredService<IConfiguration>());
             ConsoleManager.Initialize();
             host.Run();
+        }
+
+        static void GlobalExceptionHandler(object sender, UnhandledExceptionEventArgs args)
+        {
+            Exception e = (Exception)args.ExceptionObject;
+            Log.Error("GlobalExceptionHandler caught : " + e.Message);
         }
 
     }

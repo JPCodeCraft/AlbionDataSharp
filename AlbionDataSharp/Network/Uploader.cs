@@ -6,6 +6,7 @@ using AlbionDataSharp.UI;
 using NATS.Client;
 using Serilog;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 
@@ -13,6 +14,8 @@ namespace AlbionDataSharp.Network
 {
     public class Uploader
     {
+        private static HttpClient httpClient = new HttpClient();
+
         public async Task Upload(MarketUpload marketUpload)
         {
             var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
@@ -51,42 +54,51 @@ namespace AlbionDataSharp.Network
 
         protected async Task<bool> UploadData(byte[] data, ServerInfo server, string topic)
         {
-            if (server.UploadType == UploadType.Nats)
+            try
             {
-                return UploadToNats(data, topic, server);
-            }
-            else if (server.UploadType == UploadType.PoW)
-            {
-                PowSolver solver = new PowSolver();
-                var powRequest = await solver.GetPowRequest(server);
-                if (powRequest is not null)
+                if (server.UploadType == UploadType.Nats)
                 {
-                    var solution = await solver.SolvePow(powRequest);
-                    if (!string.IsNullOrEmpty(solution))
+                    return UploadToNats(data, topic, server);
+                }
+                else if (server.UploadType == UploadType.PoW)
+                {
+                    PowSolver solver = new PowSolver();
+                    var powRequest = await solver.GetPowRequest(server, httpClient);
+                    if (powRequest is not null)
                     {
-                        await UploadWithPow(powRequest, solution, data, topic, server);
-                        return true;
+                        var solution = await solver.SolvePow(powRequest);
+                        if (!string.IsNullOrEmpty(solution))
+                        {
+                            await UploadWithPow(powRequest, solution, data, topic, server, httpClient);
+                            return true;
+                        }
+                        else
+                        {
+                            Log.Error("PoW solution is null or empty.");
+                            return false;
+                        }
                     }
                     else
                     {
-                        Log.Error("PoW solution is null or empty.");
+                        Log.Error("PoW request is null.");
                         return false;
                     }
                 }
                 else
                 {
-                    Log.Error("PoW request is null.");
+                    Log.Error("Unknown upload type {0}.", server.UploadType);
                     return false;
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Log.Error("Unknown upload type {0}", server.UploadType);
+                Log.Error(ex, "Exception while uploading data to {0}.", server.Name);
                 return false;
             }
+
         }
 
-        private async Task UploadWithPow(PowRequest pow, string solution, byte[] data, string topic, ServerInfo server)
+        private async Task UploadWithPow(PowRequest pow, string solution, byte[] data, string topic, ServerInfo server, HttpClient client)
         {
             string fullURL = server.Url + "/pow/" + topic;
 
@@ -98,15 +110,11 @@ namespace AlbionDataSharp.Network
                 new KeyValuePair<string, string>("natsmsg", Encoding.UTF8.GetString(data)),
             });
 
-            HttpResponseMessage response;
-            using (HttpClient client = new())
-            {
-                var request = new HttpRequestMessage(HttpMethod.Post, fullURL);
-                request.Headers.Add("User-Agent", "AlbionDataSharp");
-                request.Content = dataToSend;
+            var request = new HttpRequestMessage(HttpMethod.Post, fullURL);
+            request.Headers.Add("User-Agent", "AlbionDataSharp");
+            request.Content = dataToSend;
 
-                response = await client.SendAsync(request);
-            }
+            HttpResponseMessage response = await client.SendAsync(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -135,11 +143,23 @@ namespace AlbionDataSharp.Network
                     return true;
                 }
             }
+            catch (SocketException ex)
+            {
+                Log.Error(ex, "SocketException: {Message}", ex.Message);
+            }
+            catch (IOException ex)
+            {
+                Log.Error(ex, "IOException: {Message}", ex.Message);
+            }
+            catch (ObjectDisposedException ex)
+            {
+                Log.Error(ex, "ObjectDisposedException: {Message}", ex.Message);
+            }
             catch (Exception ex)
             {
                 Log.Error(ex, ex.ToString());
-                return false;
             }
+            return false;
         }
 
         protected void LogOfferRequestUpload(int offers, int requests, ServerInfo server)
