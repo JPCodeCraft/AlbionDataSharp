@@ -1,9 +1,8 @@
 ﻿using Albion.Network;
-using System.Text.Json;
 using AlbionData.Models;
-using Microsoft.Extensions.Logging;
-using Serilog;
 using AlbionDataSharp.State;
+using Serilog;
+using System.Text.Json;
 
 namespace AlbionDataSharp.Network.Responses
 {
@@ -22,7 +21,7 @@ namespace AlbionDataSharp.Network.Responses
                     foreach (var auctionOfferString in (IEnumerable<string>)orders ?? new List<string>())
                     {
                         var order = JsonSerializer.Deserialize<MarketOrder>(auctionOfferString);
-                        order.LocationId = ushort.Parse(PlayerStatus.LocationID);
+                        order.LocationId = (ushort)PlayerStatus.Location;
                         marketUpload.Orders.Add(order);
                     }
                 }

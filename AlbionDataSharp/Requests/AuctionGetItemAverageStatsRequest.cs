@@ -1,10 +1,8 @@
 ﻿using Albion.Network;
-using System.Text.Json;
 using AlbionData.Models;
-using Microsoft.Extensions.Logging;
-using Serilog;
-using AlbionDataSharp.State;
 using AlbionDataSharp.Network;
+using AlbionDataSharp.State;
+using Serilog;
 
 namespace AlbionDataSharp.Requests
 {
@@ -17,7 +15,7 @@ namespace AlbionDataSharp.Requests
             Log.Debug("Got {PacketType} packet.", GetType());
 
             if (!PlayerStatus.CheckLocationIDIsSet()) return;
-            info.LocationID = PlayerStatus.LocationID;
+            info.LocationID = ((int)PlayerStatus.Location).ToString();
 
             try
             {
