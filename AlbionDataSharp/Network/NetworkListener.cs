@@ -1,4 +1,5 @@
 ﻿using Albion.Network;
+using AlbionDataSharp.Config;
 using AlbionDataSharp.Network.Handlers;
 using AlbionDataSharp.State;
 using Microsoft.Extensions.Hosting;
@@ -68,15 +69,15 @@ namespace AlbionDataSharp.Network
                         var srcIp = (packet.ParentPacket as IPv4Packet)?.SourceAddress?.ToString();
                         if (srcIp == null || string.IsNullOrEmpty(srcIp))
                         {
-                            PlayerStatus.Server = Server.Unknown;
+                            PlayerStatus.Server = AlbionServer.Unknown;
                         }
                         else if (srcIp.Contains("5.188.125."))
                         {
-                            PlayerStatus.Server = Server.West;
+                            PlayerStatus.Server = AlbionServer.West;
                         }
                         else if (srcIp!.Contains("5.45.187."))
                         {
-                            PlayerStatus.Server = Server.East;
+                            PlayerStatus.Server = AlbionServer.East;
                         }
                     }
                     receiver.ReceivePacket(packet.PayloadData);
