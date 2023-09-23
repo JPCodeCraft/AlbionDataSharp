@@ -12,18 +12,14 @@ namespace AlbionDataSharp.Network.Pow
     {
         private static readonly RandomNumberGenerator rng = RandomNumberGenerator.Create();
 
-        public async Task<PowRequest?> GetPowRequest(ServerInfo server)
+        public async Task<PowRequest?> GetPowRequest(ServerInfo server, HttpClient client)
         {
             string fullURL = server.Url + "/pow";
 
-            HttpResponseMessage response;
 
-            using (HttpClient client = new())
-            {
-                var request = new HttpRequestMessage(HttpMethod.Get, fullURL);
-                request.Headers.Add("User-Agent", "AlbionDataSharp");
-                response = await client.SendAsync(request);
-            }
+            var request = new HttpRequestMessage(HttpMethod.Get, fullURL);
+            request.Headers.Add("User-Agent", "AlbionDataSharp");
+            HttpResponseMessage response = await client.SendAsync(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
