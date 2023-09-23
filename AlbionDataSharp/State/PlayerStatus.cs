@@ -6,7 +6,7 @@ namespace AlbionDataSharp.State
 {
     internal class PlayerStatus
     {
-        private static string locationID;
+        private static Location location;
         private static string playerName;
         private static Server server = Server.Unknown;
         //CacheSize limit size of messages in cache
@@ -15,13 +15,13 @@ namespace AlbionDataSharp.State
         public static MarketHistoryInfo[] MarketHistoryIDLookup { get; } = new MarketHistoryInfo[CacheSize];
         public static ulong CacheSize => cacheSize;
 
-        public static string LocationID
+        public static Location Location
         {
-            get => locationID;
+            get => location;
             set
             {
-                locationID = value;
-                Log.Information("Player location set to {Location}", LocationID);
+                location = value;
+                Log.Information("Player location set to {Location}", Location.ToString());
             }
         }
         public static string PlayerName
@@ -47,7 +47,7 @@ namespace AlbionDataSharp.State
 
         public static bool CheckLocationIDIsSet()
         {
-            if (locationID == null || !Enum.IsDefined(typeof(Location), int.Parse(LocationID)))
+            if (location == null || !Enum.IsDefined(typeof(Location), Location))
             {
                 Log.Warning($"Player location is not set. Please change maps.");
                 return false;

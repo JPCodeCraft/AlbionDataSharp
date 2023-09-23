@@ -1,9 +1,7 @@
 ﻿using Albion.Network;
-using System.Text.Json;
 using AlbionData.Models;
-using Microsoft.Extensions.Logging;
-using Serilog;
 using AlbionDataSharp.State;
+using Serilog;
 
 namespace AlbionDataSharp.Network.Responses
 {
@@ -23,7 +21,7 @@ namespace AlbionDataSharp.Network.Responses
                 {
                     string location = (string)locationData;
                     if (location.Contains("-Auction2")) location = location.Replace("-Auction2", "");
-                    PlayerStatus.LocationID = location;
+                    PlayerStatus.Location = (Location)int.Parse(location);
                 }
             }
             catch (Exception e)
