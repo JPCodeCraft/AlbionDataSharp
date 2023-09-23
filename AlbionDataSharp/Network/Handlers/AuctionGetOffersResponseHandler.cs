@@ -1,6 +1,4 @@
 ﻿using Albion.Network;
-using AlbionDataSharp.Network.Http;
-using AlbionDataSharp.Network.Nats;
 using AlbionDataSharp.Network.Responses;
 
 namespace AlbionDataSharp.Network.Handlers
@@ -15,10 +13,8 @@ namespace AlbionDataSharp.Network.Handlers
         {
             if (value.marketUpload.Orders.Count > 0)
             {
-                NatsManager natsManager = new();
-                PowManager powManager = new();
-                natsManager.Upload(value.marketUpload);
-                await powManager.Upload(value.marketUpload);
+                Uploader uploader = new Uploader();
+                await uploader.Upload(value.marketUpload);
             }
             await Task.CompletedTask;
         }

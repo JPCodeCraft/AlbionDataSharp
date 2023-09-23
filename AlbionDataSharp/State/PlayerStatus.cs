@@ -7,9 +7,9 @@ namespace AlbionDataSharp.State
 {
     internal class PlayerStatus
     {
-        private static Location location;
-        private static string playerName;
-        private static AlbionServer server = AlbionServer.Unknown;
+        private static Location location = 0;
+        private static string playerName = string.Empty;
+        private static AlbionServer albionServer = AlbionServer.Unknown;
         //CacheSize limit size of messages in cache
         private const ulong cacheSize = 8192;
 
@@ -35,20 +35,20 @@ namespace AlbionDataSharp.State
                 Log.Information("Player name set to {PlayerName}", PlayerName);
             }
         }
-        public static AlbionServer Server
+        public static AlbionServer AlbionServer
         {
-            get => server;
+            get => albionServer;
             set
             {
-                if (server == value) return;
-                server = value;
-                Log.Information("Server set to {Server}", Server);
+                if (albionServer == value) return;
+                albionServer = value;
+                Log.Information("Server set to {Server}", AlbionServer);
             }
         }
 
         public static bool CheckLocationIDIsSet()
         {
-            if (location == null || !Enum.IsDefined(typeof(Location), Location))
+            if (location == 0 || !Enum.IsDefined(typeof(Location), Location))
             {
                 Log.Warning($"Player location is not set. Please change maps.");
                 return false;
