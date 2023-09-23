@@ -33,13 +33,13 @@ namespace AlbionDataSharp.Network.Nats
                 //private servers
                 switch (PlayerStatus.Server)
                 {
-                    case Server.Unknown:
+                    case AlbionServer.Unknown:
                         Log.Warning("Server has not been set. Can't upload to NATS. Please change maps.");
                         return;
-                    case Server.East:
+                    case AlbionServer.East:
                         privateServers = ConfigurationHelper.networkSettings.PrivateEastServers;
                         break;
-                    case Server.West:
+                    case AlbionServer.West:
                         privateServers = ConfigurationHelper.networkSettings.PrivateWestServers;
                         break;
                 };
@@ -79,13 +79,13 @@ namespace AlbionDataSharp.Network.Nats
                 //private servers
                 switch (PlayerStatus.Server)
                 {
-                    case Server.Unknown:
+                    case AlbionServer.Unknown:
                         Log.Warning("Server has not been set. Can't upload to NATS. Please change maps.");
                         return;
-                    case Server.East:
+                    case AlbionServer.East:
                         privateServers = ConfigurationHelper.networkSettings.PrivateEastServers;
                         break;
-                    case Server.West:
+                    case AlbionServer.West:
                         privateServers = ConfigurationHelper.networkSettings.PrivateWestServers;
                         break;
                 };

@@ -73,13 +73,13 @@ namespace AlbionDataSharp.Network.Http
 
             switch (PlayerStatus.Server)
             {
-                case Server.Unknown:
+                case AlbionServer.Unknown:
                     Log.Warning("Server has not been set. Can't GetPow. Please change maps.");
                     return await Task.FromResult<PowRequest>(new PowRequest());
-                case Server.East:
+                case AlbionServer.East:
                     fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.East.Url + "/pow";
                     break;
-                case Server.West:
+                case AlbionServer.West:
                     fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.West.Url + "/pow";
                     break;
             };
@@ -110,14 +110,14 @@ namespace AlbionDataSharp.Network.Http
 
             switch (PlayerStatus.Server)
             {
-                case Server.Unknown:
+                case AlbionServer.Unknown:
                     Log.Warning("Server has not been set. Can't GetPow. Please change maps.");
                     return (false, string.Empty);
-                case Server.East:
+                case AlbionServer.East:
                     fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.East.Url + "/pow/" + topic;
                     serverName = ConfigurationHelper.networkSettings.AlbionDataServers.East.Name;
                     break;
-                case Server.West:
+                case AlbionServer.West:
                     fullURL = ConfigurationHelper.networkSettings.AlbionDataServers.West.Url + "/pow/" + topic;
                     serverName = ConfigurationHelper.networkSettings.AlbionDataServers.West.Name;
                     break;
