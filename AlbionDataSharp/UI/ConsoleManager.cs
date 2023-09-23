@@ -100,7 +100,7 @@ namespace AlbionDataSharp.UI
                 {
                     WriteTable();
                 }
-                await Task.Delay(100);
+                await Task.Delay(ConfigurationHelper.uiSettings.ConsoleRefreshRateMs);
             }
         }
 
