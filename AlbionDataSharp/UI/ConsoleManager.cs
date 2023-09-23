@@ -18,7 +18,7 @@ namespace AlbionDataSharp.UI
         private static readonly Table serversTable = new Table()
             .Title("[bold yellow]Server Statistics - Data Sent[/]")
             .Border(TableBorder.Double)
-            .AddColumns("Server", "Offers", "Requests", "Histories (Month)", "Histories (Week)", "Histories (Day)")
+            .AddColumns("[bold]Server[/]", "[bold]Offers[/]", "[bold]Requests[/]", "[bold]Histories (Month)[/]", "[bold]Histories (Week)[/]", "[bold]Histories (Day)[/]")
             .Expand();
 
         private static ConcurrentQueue<LogEvent> stateUpdates = new ConcurrentQueue<LogEvent>();
@@ -36,24 +36,7 @@ namespace AlbionDataSharp.UI
         }
         private static List<string> GetAllServers()
         {
-            var allServers = new List<string>();
-            if (ConfigurationHelper.networkSettings.AlbionDataServers?.East?.Name != null)
-            {
-                allServers.Add(ConfigurationHelper.networkSettings.AlbionDataServers.East.Name);
-            }
-            if (ConfigurationHelper.networkSettings.AlbionDataServers?.West?.Name != null)
-            {
-                allServers.Add(ConfigurationHelper.networkSettings.AlbionDataServers.West.Name);
-            }
-            if (ConfigurationHelper.networkSettings.PrivateWestServers != null)
-            {
-                allServers.AddRange(ConfigurationHelper.networkSettings.PrivateWestServers.Select(s => s.Name));
-            }
-            if (ConfigurationHelper.networkSettings.PrivateEastServers != null)
-            {
-                allServers.AddRange(ConfigurationHelper.networkSettings.PrivateEastServers.Select(s => s.Name));
-            }
-            return allServers;
+            return ConfigurationHelper.networkSettings.UploadServers.Select(x => x.Name).ToList();
         }
 
         public static void IncrementOffersSent(string server, int count)

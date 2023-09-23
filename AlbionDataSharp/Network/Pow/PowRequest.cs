@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AlbionDataSharp.Network.Http
+namespace AlbionDataSharp.Network.Pow
 {
     public class PowRequest
     {

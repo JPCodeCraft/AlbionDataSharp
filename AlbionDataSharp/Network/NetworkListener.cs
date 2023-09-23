@@ -69,15 +69,15 @@ namespace AlbionDataSharp.Network
                         var srcIp = (packet.ParentPacket as IPv4Packet)?.SourceAddress?.ToString();
                         if (srcIp == null || string.IsNullOrEmpty(srcIp))
                         {
-                            PlayerStatus.Server = AlbionServer.Unknown;
+                            PlayerStatus.AlbionServer = AlbionServer.Unknown;
                         }
                         else if (srcIp.Contains("5.188.125."))
                         {
-                            PlayerStatus.Server = AlbionServer.West;
+                            PlayerStatus.AlbionServer = AlbionServer.West;
                         }
                         else if (srcIp!.Contains("5.45.187."))
                         {
-                            PlayerStatus.Server = AlbionServer.East;
+                            PlayerStatus.AlbionServer = AlbionServer.East;
                         }
                     }
                     receiver.ReceivePacket(packet.PayloadData);
