@@ -30,4 +30,8 @@
     <PackageReference Include="Spectre.Console" Version="0.47.1-preview.0.24" />
   </ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Screenshots\" />
+	</ItemGroup>
+
 </Project>
