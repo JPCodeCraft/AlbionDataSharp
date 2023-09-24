@@ -20,7 +20,7 @@ namespace AlbionDataSharp.UI
         private static readonly Table serversTable = new Table()
             .Title("[bold yellow]Server Statistics - Data Sent[/]")
             .Border(TableBorder.Double)
-            .AddColumns("[bold]Server[/]", "[bold]Offers[/]", "[bold]Requests[/]", "[bold]Histories (Month)[/]", "[bold]Histories (Week)[/]", "[bold]Histories (Day)[/]")
+            .AddColumns("[bold]Server[/]", "[bold]Offers[/]", "[bold]Requests[/]", "[bold]Histories (Month)[/]", "[bold]Histories (Week)[/]", "[bold]Histories (Day)[/]", "[bold]Gold Histories[/]")
             .Expand();
         private static readonly Table playerTable = new Table()
             .Title("[bold underline yellow]Albion Data Sharp[/]")
@@ -32,6 +32,7 @@ namespace AlbionDataSharp.UI
 
         private static ConcurrentDictionary<string, int> offersSentCount = new ConcurrentDictionary<string, int>();
         private static ConcurrentDictionary<string, int> requestsSentCount = new ConcurrentDictionary<string, int>();
+        private static ConcurrentDictionary<string, int> goldHistoriesSentCount = new ConcurrentDictionary<string, int>();
         private static ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>> historiesSentCount =
             new ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>>();
 
@@ -86,6 +87,12 @@ namespace AlbionDataSharp.UI
         {
             var serverCounts = historiesSentCount.GetOrAdd(server, new ConcurrentDictionary<Timescale, int>());
             serverCounts.AddOrUpdate(timescale, count, (key, oldValue) => oldValue + count);
+            Flag();
+        }
+
+        internal static void IncrementGoldHistoriesSent(string server, int count)
+        {
+            goldHistoriesSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
             Flag();
         }
 
@@ -145,6 +152,7 @@ namespace AlbionDataSharp.UI
                 offersSentCount.TryGetValue(server, out int offers);
                 requestsSentCount.TryGetValue(server, out int requests);
                 historiesSentCount.TryGetValue(server, out var histories);
+                goldHistoriesSentCount.TryGetValue(server, out var goldHistories);
 
                 int historiesMonth = histories?.GetValueOrDefault(Timescale.Month) ?? 0;
                 int historiesWeek = histories?.GetValueOrDefault(Timescale.Week) ?? 0;
@@ -156,7 +164,8 @@ namespace AlbionDataSharp.UI
                     requests.ToString(),
                     historiesMonth.ToString(),
                     historiesWeek.ToString(),
-                    historiesDay.ToString()
+                    historiesDay.ToString(),
+                    goldHistories.ToString()
                 );
             }
 
