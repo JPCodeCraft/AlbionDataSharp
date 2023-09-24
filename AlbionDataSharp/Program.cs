@@ -1,12 +1,4 @@
-﻿using AlbionDataSharp.Config;
-using AlbionDataSharp.Network;
-using AlbionDataSharp.UI;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Serilog;
-
-namespace AlbionDataSharp
+﻿namespace AlbionDataSharp
 {
     public class Program
     {
