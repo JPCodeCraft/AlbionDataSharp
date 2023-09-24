@@ -30,11 +30,11 @@ namespace AlbionDataSharp.UI
 
         private static ConcurrentQueue<LogEvent> stateUpdates = new ConcurrentQueue<LogEvent>();
 
-        private static ConcurrentDictionary<string, int> offersSentCount = new ConcurrentDictionary<string, int>();
-        private static ConcurrentDictionary<string, int> requestsSentCount = new ConcurrentDictionary<string, int>();
-        private static ConcurrentDictionary<string, int> goldHistoriesSentCount = new ConcurrentDictionary<string, int>();
-        private static ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>> historiesSentCount =
-            new ConcurrentDictionary<string, ConcurrentDictionary<Timescale, int>>();
+        private static ConcurrentDictionary<ServerInfo, int> offersSentCount = new ConcurrentDictionary<ServerInfo, int>();
+        private static ConcurrentDictionary<ServerInfo, int> requestsSentCount = new ConcurrentDictionary<ServerInfo, int>();
+        private static ConcurrentDictionary<ServerInfo, int> goldHistoriesSentCount = new ConcurrentDictionary<ServerInfo, int>();
+        private static ConcurrentDictionary<ServerInfo, ConcurrentDictionary<Timescale, int>> historiesSentCount =
+            new ConcurrentDictionary<ServerInfo, ConcurrentDictionary<Timescale, int>>();
 
 
         private static string playerName = string.Empty;
@@ -48,9 +48,9 @@ namespace AlbionDataSharp.UI
             WriteTable();
             await Monitor();
         }
-        private static List<string> GetAllServers()
+        private static List<ServerInfo> GetAllServers()
         {
-            return ConfigurationHelper.networkSettings.UploadServers.Select(x => x.Name).ToList();
+            return ConfigurationHelper.networkSettings.UploadServers.ToList();
         }
 
         public static void SetPlayerName(string name)
@@ -71,26 +71,26 @@ namespace AlbionDataSharp.UI
             Flag();
         }
 
-        public static void IncrementOffersSent(string server, int count)
+        public static void IncrementOffersSent(ServerInfo server, int count)
         {
             offersSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
             Flag();
         }
 
-        public static void IncrementRequestsSent(string server, int count)
+        public static void IncrementRequestsSent(ServerInfo server, int count)
         {
             requestsSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
             Flag();
         }
 
-        public static void IncrementHistoriesSent(string server, int count, Timescale timescale)
+        public static void IncrementHistoriesSent(ServerInfo server, int count, Timescale timescale)
         {
             var serverCounts = historiesSentCount.GetOrAdd(server, new ConcurrentDictionary<Timescale, int>());
             serverCounts.AddOrUpdate(timescale, count, (key, oldValue) => oldValue + count);
             Flag();
         }
 
-        internal static void IncrementGoldHistoriesSent(string server, int count)
+        internal static void IncrementGoldHistoriesSent(ServerInfo server, int count)
         {
             goldHistoriesSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
             Flag();
@@ -159,7 +159,7 @@ namespace AlbionDataSharp.UI
                 int historiesDay = histories?.GetValueOrDefault(Timescale.Day) ?? 0;
 
                 serversTable.AddRow(
-                    $"[bold teal]{server}[/]",
+                    $"[{server.Color}]{server.Name}[/]",
                     offers.ToString(),
                     requests.ToString(),
                     historiesMonth.ToString(),
