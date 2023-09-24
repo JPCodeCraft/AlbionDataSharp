@@ -38,10 +38,13 @@ namespace AlbionDataSharp.Network
             ReceiverBuilder builder = ReceiverBuilder.Create();
 
             //ADD HANDLERS HERE
+            //RESPONSE
             builder.AddResponseHandler(new AuctionGetOffersResponseHandler());
             builder.AddResponseHandler(new AuctionGetRequestsResponseHandler());
             builder.AddResponseHandler(new AuctionGetItemAverageStatsResponseHandler());
             builder.AddResponseHandler(new JoinResponseHandler());
+            builder.AddResponseHandler(new AuctionGetGoldAverageStatsResponseHandler());
+            //REQUEST
             builder.AddRequestHandler(new AuctionGetItemAverageStatsRequestHandler());
 
             receiver = builder.Build();

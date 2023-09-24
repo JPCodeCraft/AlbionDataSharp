@@ -60,6 +60,20 @@ namespace AlbionDataSharp.Network
                 }
             }
         }
+        public async Task Upload(GoldPriceUpload goldHistoryUpload)
+        {
+            var amount = goldHistoryUpload.Prices.Length;
+            var data = SerializeData(goldHistoryUpload);
+            foreach (var server in ConfigurationHelper.networkSettings.UploadServers.Where(x => x.AlbionServer == PlayerStatus.AlbionServer))
+            {
+                if (await UploadData(data, server, ConfigurationHelper.networkSettings.GoldDataIngestSubject))
+                {
+                    LogGoldHistoryUpload(amount, server);
+                    if (amount > 0) ConsoleManager.IncrementGoldHistoriesSent(server.Name, amount);
+                }
+            }
+        }
+
 
         public async Task Upload(MarketHistoriesUpload marketHistoriesUpload)
         {
@@ -210,6 +224,11 @@ namespace AlbionDataSharp.Network
         {
             Log.Information("Published {amount} histories in timescale {timescale} to {server}.", count, timescale.ToString(), server.Name);
         }
+        protected void LogGoldHistoryUpload(int count, Config.ServerInfo server)
+        {
+            Log.Information("Published {amount} gold histories to {server}.", count, server.Name);
+        }
+
 
         private void OnShutDown()
         {
