@@ -21,7 +21,7 @@ This project was heavily inspired in:
 
 ## Getting Started
 
-1. Download the latest release from the Releases section.
+1. Download the latest release from the [Releases section](https://github.com/augusto501/AlbionDataSharp/releases).
 2. Extract the files.
 3. Configure `appsettings.json` as needed.
 4. Install [NpCap](https://npcap.com/#download). This is required.
