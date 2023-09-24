@@ -17,9 +17,11 @@ namespace AlbionDataSharp.Network
         private static readonly HttpClient httpClient = new HttpClient();
         private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         private static readonly Dictionary<Config.ServerInfo, IConnection> natsConnections = new Dictionary<Config.ServerInfo, IConnection>();
+
+        int maxServerNameLength;
         public Uploader()
         {
-
+            maxServerNameLength = GetMaxServerNameLength();
             AppDomain.CurrentDomain.ProcessExit += (s, e) => OnShutDown();
             foreach (var server in ConfigurationHelper.networkSettings.UploadServers)
             {
@@ -55,8 +57,8 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, ConfigurationHelper.networkSettings.MarketOrdersIngestSubject))
                 {
                     LogOfferRequestUpload(offers, requests, server);
-                    if (offers > 0) ConsoleManager.IncrementOffersSent(server.Name, offers);
-                    if (requests > 0) ConsoleManager.IncrementRequestsSent(server.Name, requests);
+                    if (offers > 0) ConsoleManager.IncrementOffersSent(server, offers);
+                    if (requests > 0) ConsoleManager.IncrementRequestsSent(server, requests);
                 }
             }
         }
@@ -69,7 +71,7 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, ConfigurationHelper.networkSettings.GoldDataIngestSubject))
                 {
                     LogGoldHistoryUpload(amount, server);
-                    if (amount > 0) ConsoleManager.IncrementGoldHistoriesSent(server.Name, amount);
+                    if (amount > 0) ConsoleManager.IncrementGoldHistoriesSent(server, amount);
                 }
             }
         }
@@ -85,7 +87,7 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject))
                 {
                     LogHistoryUpload(count, timescale, server);
-                    if (count > 0) ConsoleManager.IncrementHistoriesSent(server.Name, count, timescale);
+                    if (count > 0) ConsoleManager.IncrementHistoriesSent(server, count, timescale);
                 }
             }
         }
@@ -214,21 +216,38 @@ namespace AlbionDataSharp.Network
 
         protected void LogOfferRequestUpload(int offers, int requests, Config.ServerInfo server)
         {
-            if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to {server}.", offers, server.Name);
-            else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to {server}.", requests, server.Name);
-            else if (offers == 0 && requests == 0) Log.Debug("Published nothing to {server}.", server.Name);
-            else Log.Information("Published {amount} offers and {amount} requests to {server}.", offers, requests, server.Name);
+            string paddedServerName = server.Name.PadRight(maxServerNameLength);
+            string serverMarkup = $"[{server.Color}]{paddedServerName}[/]";
+            string offersMarkup = $"[green]{offers}[/]";
+            string requestsMarkup = $"[yellow]{requests}[/]";
+
+            if (offers > 0 && requests == 0) Log.Information($"{serverMarkup} Published {offersMarkup} offers.");
+            else if (offers == 0 && requests > 0) Log.Information($"{serverMarkup} Published {requestsMarkup} requests.");
+            else if (offers == 0 && requests == 0) Log.Debug($"{serverMarkup} Published nothing.");
+            else Log.Information($"{serverMarkup} Published {offersMarkup} offers and {requestsMarkup} requests.");
         }
 
         protected void LogHistoryUpload(int count, Timescale timescale, Config.ServerInfo server)
         {
-            Log.Information("Published {amount} histories in timescale {timescale} to {server}.", count, timescale.ToString(), server.Name);
+            string paddedServerName = server.Name.PadRight(maxServerNameLength);
+            string serverMarkup = $"[{server.Color}]{paddedServerName}[/]";
+            string countMarkup = $"[greenyellow]{count}[/]";
+            string timescaleMarkup = $"[darkorange3_1]{timescale}[/]";
+
+            Log.Information($"{serverMarkup} Published {countMarkup} histories in timescale {timescaleMarkup}.");
         }
         protected void LogGoldHistoryUpload(int count, Config.ServerInfo server)
         {
-            Log.Information("Published {amount} gold histories to {server}.", count, server.Name);
-        }
+            string paddedServerName = server.Name.PadRight(maxServerNameLength);
+            string serverMarkup = $"[{server.Color}]{paddedServerName}[/]";
+            string countMarkup = $"[gold3]{count}[/]";
 
+            Log.Information($"{serverMarkup} Published {countMarkup} gold histories.");
+        }
+        private int GetMaxServerNameLength()
+        {
+            return ConfigurationHelper.networkSettings.UploadServers.Max(s => s.Name.Length);
+        }
 
         private void OnShutDown()
         {

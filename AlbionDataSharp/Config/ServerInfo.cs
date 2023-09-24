@@ -6,5 +6,6 @@ namespace AlbionDataSharp.Config
         public string Name { get; set; }
         public AlbionServer AlbionServer { get; set; }
         public UploadType UploadType { get; set; }
+        public string Color { get; set; }
     }
 }
