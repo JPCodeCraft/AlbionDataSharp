@@ -12,6 +12,26 @@ namespace AlbionDataSharp.Network
     internal class NetworkListener : IHostedService
     {
         private IPhotonReceiver receiver;
+        CaptureDeviceList devices;
+
+        public NetworkListener()
+        {
+            AppDomain.CurrentDomain.ProcessExit += async (s, e) => await Cleanup();
+        }
+
+        private async Task Cleanup()
+        {
+            // Close network devices, flush logs, etc.
+            if (devices is not null)
+            {
+                foreach (var device in devices)
+                {
+                    device.StopCapture();
+                    device.Close();
+                }
+            }
+            await Log.CloseAndFlushAsync();
+        }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -28,7 +48,7 @@ namespace AlbionDataSharp.Network
 
             Log.Debug("Starting...");
 
-            CaptureDeviceList devices = CaptureDeviceList.New();
+            devices = CaptureDeviceList.New();
 
             foreach (var device in devices)
             {
@@ -55,7 +75,7 @@ namespace AlbionDataSharp.Network
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            await Log.CloseAndFlushAsync();
+            await Task.CompletedTask;
         }
         private void PacketHandler(object sender, PacketCapture e)
         {

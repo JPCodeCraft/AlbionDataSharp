@@ -19,6 +19,8 @@ namespace AlbionDataSharp.Network
         private static readonly Dictionary<Config.ServerInfo, IConnection> natsConnections = new Dictionary<Config.ServerInfo, IConnection>();
         public Uploader()
         {
+
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => OnShutDown();
             foreach (var server in ConfigurationHelper.networkSettings.UploadServers)
             {
                 if (server.UploadType == UploadType.Nats)
@@ -42,6 +44,7 @@ namespace AlbionDataSharp.Network
                 }
             }
         }
+
         public async Task Upload(MarketUpload marketUpload)
         {
             var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
@@ -206,6 +209,16 @@ namespace AlbionDataSharp.Network
         protected void LogHistoryUpload(int count, Timescale timescale, Config.ServerInfo server)
         {
             Log.Information("Published {amount} histories in timescale {timescale} to {server}.", count, timescale.ToString(), server.Name);
+        }
+
+        private void OnShutDown()
+        {
+            // Close and flush NATS connections here
+            foreach (var connection in natsConnections.Values)
+            {
+                connection.Drain();
+                connection.Close();
+            }
         }
     }
 }
