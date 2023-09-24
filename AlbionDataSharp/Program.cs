@@ -21,7 +21,7 @@ namespace AlbionDataSharp
             builder.Services.AddSerilog(config =>
             {
                 config.ReadFrom.Configuration(builder.Configuration);
-                config.WriteTo.Sink(new DelegatingSink(ConsoleManager.AddStateUpdate));
+                config.WriteTo.Sink(new DelegatingSink(ConsoleManager.AddStateUpdate), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information);
 
             });
             IHost host = builder.Build();
