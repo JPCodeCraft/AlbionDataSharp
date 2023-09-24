@@ -28,6 +28,13 @@ namespace AlbionDataSharp
 
             ConfigurationHelper.Initialize(host.Services.GetRequiredService<IConfiguration>());
             ConsoleManager.Initialize();
+
+            //cleanup
+            AppDomain.CurrentDomain.ProcessExit += async (s, e) =>
+            {
+                Uploader.OnShutDown();
+            };
+
             host.Run();
         }
 
