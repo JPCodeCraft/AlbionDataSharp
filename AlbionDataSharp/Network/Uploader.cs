@@ -14,8 +14,34 @@ namespace AlbionDataSharp.Network
 {
     public class Uploader
     {
-        private static HttpClient httpClient = new HttpClient();
-
+        private static readonly HttpClient httpClient = new HttpClient();
+        private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        private static readonly Dictionary<Config.ServerInfo, IConnection> natsConnections = new Dictionary<Config.ServerInfo, IConnection>();
+        public Uploader()
+        {
+            foreach (var server in ConfigurationHelper.networkSettings.UploadServers)
+            {
+                if (server.UploadType == UploadType.Nats)
+                {
+                    var options = ConnectionFactory.GetDefaultOptions();
+                    options.Url = server.Url;
+                    //hacks so nats won't log it's default event to console
+                    options.DisconnectedEventHandler = (sender, args) =>
+                    {
+                        Log.Information("Nats connection of {server} disconnected with error {error}", server.Name, args.Error);
+                    };
+                    options.ClosedEventHandler = (sender, args) =>
+                    {
+                        Log.Information("Nats connection of {server} closed with error {error}", server.Name, args.Error);
+                    };
+                    options.ReconnectedEventHandler = (sender, args) =>
+                    {
+                        Log.Information("Nats connection of {server} reconnected with error {error}", server.Name, args.Error);
+                    };
+                    natsConnections[server] = new ConnectionFactory().CreateConnection(options);
+                }
+            }
+        }
         public async Task Upload(MarketUpload marketUpload)
         {
             var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
@@ -52,37 +78,54 @@ namespace AlbionDataSharp.Network
             return JsonSerializer.SerializeToUtf8Bytes(upload, new JsonSerializerOptions { IncludeFields = true });
         }
 
-        protected async Task<bool> UploadData(byte[] data, ServerInfo server, string topic)
+        protected async Task<bool> UploadData(byte[] data, Config.ServerInfo server, string topic)
         {
             try
             {
                 if (server.UploadType == UploadType.Nats)
                 {
-                    return UploadToNats(data, topic, server);
-                }
-                else if (server.UploadType == UploadType.PoW)
-                {
-                    PowSolver solver = new PowSolver();
-                    var powRequest = await solver.GetPowRequest(server, httpClient);
-                    if (powRequest is not null)
+                    if (natsConnections.TryGetValue(server, out var natsConnection))
                     {
-                        var solution = await solver.SolvePow(powRequest);
-                        if (!string.IsNullOrEmpty(solution))
-                        {
-                            await UploadWithPow(powRequest, solution, data, topic, server, httpClient);
-                            return true;
-                        }
-                        else
-                        {
-                            Log.Error("PoW solution is null or empty.");
-                            return false;
-                        }
+                        return UploadToNats(data, topic, server, natsConnection);
                     }
                     else
                     {
-                        Log.Error("PoW request is null.");
+                        Log.Error("Nats connection for {0} was not found.", server.Name);
                         return false;
                     }
+                }
+                else if (server.UploadType == UploadType.PoW)
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        PowSolver solver = new PowSolver();
+                        var powRequest = await solver.GetPowRequest(server, httpClient);
+                        if (powRequest is not null)
+                        {
+                            var solution = await solver.SolvePow(powRequest);
+                            if (!string.IsNullOrEmpty(solution))
+                            {
+                                await UploadWithPow(powRequest, solution, data, topic, server, httpClient);
+                                return true;
+                            }
+                            else
+                            {
+                                Log.Error("PoW solution is null or empty.");
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            Log.Error("PoW request is null.");
+                            return false;
+                        }
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+
                 }
                 else
                 {
@@ -98,7 +141,7 @@ namespace AlbionDataSharp.Network
 
         }
 
-        private async Task UploadWithPow(PowRequest pow, string solution, byte[] data, string topic, ServerInfo server, HttpClient client)
+        private async Task UploadWithPow(PowRequest pow, string solution, byte[] data, string topic, Config.ServerInfo server, HttpClient client)
         {
             string fullURL = server.Url + "/pow/" + topic;
 
@@ -126,22 +169,12 @@ namespace AlbionDataSharp.Network
             return;
         }
 
-        private bool UploadToNats(byte[] data, string topic, ServerInfo server)
+        private bool UploadToNats(byte[] data, string topic, Config.ServerInfo server, IConnection natsConnection)
         {
-            Options opts = ConnectionFactory.GetDefaultOptions();
-            //hacks so nats won't log it's default event to console
-            opts.DisconnectedEventHandler = (sender, args) => { };
-            opts.ClosedEventHandler = (sender, args) => { };
-            opts.Url = server.Url;
-
             try
             {
-                using (IConnection c = new ConnectionFactory().CreateConnection(opts))
-                {
-                    c.Publish(topic, data);
-                    c.Flush(10000);
-                    return true;
-                }
+                natsConnection.Publish(topic, data);
+                return true;
             }
             catch (SocketException ex)
             {
@@ -162,7 +195,7 @@ namespace AlbionDataSharp.Network
             return false;
         }
 
-        protected void LogOfferRequestUpload(int offers, int requests, ServerInfo server)
+        protected void LogOfferRequestUpload(int offers, int requests, Config.ServerInfo server)
         {
             if (offers > 0 && requests == 0) Log.Information("Published {amount} offers to {server}.", offers, server.Name);
             else if (offers == 0 && requests > 0) Log.Information("Published {amount} requests to {server}.", requests, server.Name);
@@ -170,7 +203,7 @@ namespace AlbionDataSharp.Network
             else Log.Information("Published {amount} offers and {amount} requests to {server}.", offers, requests, server.Name);
         }
 
-        protected void LogHistoryUpload(int count, Timescale timescale, ServerInfo server)
+        protected void LogHistoryUpload(int count, Timescale timescale, Config.ServerInfo server)
         {
             Log.Information("Published {amount} histories in timescale {timescale} to {server}.", count, timescale.ToString(), server.Name);
         }
