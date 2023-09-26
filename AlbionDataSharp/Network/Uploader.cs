@@ -18,9 +18,10 @@ namespace AlbionDataSharp.Network
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         private readonly Dictionary<Config.ServerInfo, IConnection> natsConnections = new Dictionary<Config.ServerInfo, IConnection>();
         private PlayerStatus playerStatus;
+        private ConsoleManager consoleManager;
 
         int maxServerNameLength;
-        public Uploader(PlayerStatus playerStatus)
+        public Uploader(PlayerStatus playerStatus, ConsoleManager consoleManager)
         {
             maxServerNameLength = GetMaxServerNameLength();
             AppDomain.CurrentDomain.ProcessExit += (s, e) => OnShutDown();
@@ -48,6 +49,7 @@ namespace AlbionDataSharp.Network
             }
 
             this.playerStatus = playerStatus;
+            this.consoleManager = consoleManager;
         }
 
         public async Task Upload(MarketUpload marketUpload)
@@ -60,8 +62,8 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, ConfigurationHelper.networkSettings.MarketOrdersIngestSubject))
                 {
                     LogOfferRequestUpload(offers, requests, server);
-                    if (offers > 0) ConsoleManager.IncrementOffersSent(server, offers);
-                    if (requests > 0) ConsoleManager.IncrementRequestsSent(server, requests);
+                    if (offers > 0) consoleManager.IncrementOffersSent(server, offers);
+                    if (requests > 0) consoleManager.IncrementRequestsSent(server, requests);
                 }
             }
         }
@@ -74,7 +76,7 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, ConfigurationHelper.networkSettings.GoldDataIngestSubject))
                 {
                     LogGoldHistoryUpload(amount, server);
-                    if (amount > 0) ConsoleManager.IncrementGoldHistoriesSent(server, amount);
+                    if (amount > 0) consoleManager.IncrementGoldHistoriesSent(server, amount);
                 }
             }
         }
@@ -90,7 +92,7 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject))
                 {
                     LogHistoryUpload(count, timescale, server);
-                    if (count > 0) ConsoleManager.IncrementHistoriesSent(server, count, timescale);
+                    if (count > 0) consoleManager.IncrementHistoriesSent(server, count, timescale);
                 }
             }
         }
