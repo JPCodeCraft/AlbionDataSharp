@@ -31,7 +31,7 @@ namespace AlbionDataSharp
             var consoleManager = host.Services.GetRequiredService<ConsoleManager>();
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
-                .WriteTo.Sink(new DelegatingSink(consoleManager.AddStateUpdate), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+                .WriteTo.Sink(new DelegatingSink(consoleManager.AddStateUpdate), restrictedToMinimumLevel: ConfigurationHelper.uiSettings.ConsoleLogLevel)
                 .CreateLogger();
 
             host.Run();
