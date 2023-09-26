@@ -1,20 +1,27 @@
 ﻿using Albion.Network;
+using AlbionData.Models;
 using AlbionDataSharp.Network.Responses;
 
 namespace AlbionDataSharp.Network.Handlers
 {
     public class AuctionGetGoldAverageStatsResponseHandler : ResponsePacketHandler<AuctionGetGoldAverageStatsResponse>
     {
-        public AuctionGetGoldAverageStatsResponseHandler() : base((int)OperationCodes.GoldMarketGetAverageInfo)
+        private readonly Uploader uploader;
+        public AuctionGetGoldAverageStatsResponseHandler(Uploader uploader) : base((int)OperationCodes.GoldMarketGetAverageInfo)
         {
+            this.uploader = uploader;
         }
 
         protected override async Task OnActionAsync(AuctionGetGoldAverageStatsResponse value)
         {
-            if (value.goldHistoriesUpload.Prices.Count() > 0)
+            GoldPriceUpload goldHistoriesUpload = new();
+
+            goldHistoriesUpload.Prices = value.prices;
+            goldHistoriesUpload.Timestamps = value.timeStamps;
+
+            if (goldHistoriesUpload.Prices.Count() > 0 && goldHistoriesUpload.Prices.Count() == goldHistoriesUpload.Timestamps.Count())
             {
-                Uploader uploader = new Uploader();
-                await uploader.Upload(value.goldHistoriesUpload);
+                await uploader.Upload(goldHistoriesUpload);
             }
             await Task.CompletedTask;
         }

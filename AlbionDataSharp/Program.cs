@@ -1,5 +1,6 @@
 ﻿using AlbionDataSharp.Config;
 using AlbionDataSharp.Network;
+using AlbionDataSharp.State;
 using AlbionDataSharp.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,8 @@ namespace AlbionDataSharp
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
             builder.Services.AddHostedService<NetworkListener>();
+            builder.Services.AddSingleton<Uploader>();
+            builder.Services.AddSingleton<PlayerStatus>();
             builder.Services.AddSerilog(config =>
             {
                 config.ReadFrom.Configuration(builder.Configuration);
