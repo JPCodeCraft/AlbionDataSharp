@@ -37,6 +37,12 @@ namespace AlbionDataSharp.UI
         private ConcurrentDictionary<ServerInfo, ConcurrentDictionary<Timescale, int>> historiesSentCount =
             new ConcurrentDictionary<ServerInfo, ConcurrentDictionary<Timescale, int>>();
 
+        private ConfigurationService configurationService;
+
+        public ConsoleManager(ConfigurationService configurationService)
+        {
+            this.configurationService = configurationService;
+        }
 
         private string playerName = string.Empty;
         private Location playerLocation = 0;
@@ -56,7 +62,7 @@ namespace AlbionDataSharp.UI
         }
         private List<ServerInfo> GetAllServers()
         {
-            return ConfigurationHelper.networkSettings.UploadServers.ToList();
+            return configurationService.NetworkSettings.UploadServers.ToList();
         }
 
         public void SetPlayerName(string name)
@@ -105,7 +111,7 @@ namespace AlbionDataSharp.UI
         public void AddStateUpdate(LogEvent logEvent)
         {
             stateUpdates.Enqueue(logEvent);
-            if (stateUpdates.Count > ConfigurationHelper.uiSettings.MaxLogEntries)
+            if (stateUpdates.Count > configurationService.UiSettings.MaxLogEntries)
             {
                 stateUpdates.TryDequeue(out _);
             }
@@ -129,7 +135,7 @@ namespace AlbionDataSharp.UI
                 {
                     WriteTable();
                 }
-                await Task.Delay(ConfigurationHelper.uiSettings.ConsoleRefreshRateMs);
+                await Task.Delay(configurationService.UiSettings.ConsoleRefreshRateMs);
             }
         }
 

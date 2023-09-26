@@ -19,13 +19,20 @@ namespace AlbionDataSharp.Network
         private readonly Dictionary<Config.ServerInfo, IConnection> natsConnections = new Dictionary<Config.ServerInfo, IConnection>();
         private PlayerStatus playerStatus;
         private ConsoleManager consoleManager;
+        private ConfigurationService configurationService;
+        private PowSolver powSolver;
 
         int maxServerNameLength;
-        public Uploader(PlayerStatus playerStatus, ConsoleManager consoleManager)
+        public Uploader(PlayerStatus playerStatus, ConsoleManager consoleManager, ConfigurationService configurationService, PowSolver powSolver)
         {
+            this.playerStatus = playerStatus;
+            this.consoleManager = consoleManager;
+            this.configurationService = configurationService;
+            this.powSolver = powSolver;
+
             maxServerNameLength = GetMaxServerNameLength();
             AppDomain.CurrentDomain.ProcessExit += (s, e) => OnShutDown();
-            foreach (var server in ConfigurationHelper.networkSettings.UploadServers)
+            foreach (var server in configurationService.NetworkSettings.UploadServers)
             {
                 if (server.UploadType == UploadType.Nats)
                 {
@@ -47,9 +54,6 @@ namespace AlbionDataSharp.Network
                     natsConnections[server] = new ConnectionFactory().CreateConnection(options);
                 }
             }
-
-            this.playerStatus = playerStatus;
-            this.consoleManager = consoleManager;
         }
 
         public async Task Upload(MarketUpload marketUpload)
@@ -57,9 +61,9 @@ namespace AlbionDataSharp.Network
             var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
             var requests = marketUpload.Orders.Where(x => x.AuctionType == "request").Count();
             var data = SerializeData(marketUpload);
-            foreach (var server in ConfigurationHelper.networkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
             {
-                if (await UploadData(data, server, ConfigurationHelper.networkSettings.MarketOrdersIngestSubject))
+                if (await UploadData(data, server, configurationService.NetworkSettings.MarketOrdersIngestSubject))
                 {
                     LogOfferRequestUpload(offers, requests, server);
                     if (offers > 0) consoleManager.IncrementOffersSent(server, offers);
@@ -71,9 +75,9 @@ namespace AlbionDataSharp.Network
         {
             var amount = goldHistoryUpload.Prices.Length;
             var data = SerializeData(goldHistoryUpload);
-            foreach (var server in ConfigurationHelper.networkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
             {
-                if (await UploadData(data, server, ConfigurationHelper.networkSettings.GoldDataIngestSubject))
+                if (await UploadData(data, server, configurationService.NetworkSettings.GoldDataIngestSubject))
                 {
                     LogGoldHistoryUpload(amount, server);
                     if (amount > 0) consoleManager.IncrementGoldHistoriesSent(server, amount);
@@ -87,9 +91,9 @@ namespace AlbionDataSharp.Network
             var count = marketHistoriesUpload.MarketHistories.Count;
             var timescale = marketHistoriesUpload.Timescale;
             var data = SerializeData(marketHistoriesUpload);
-            foreach (var server in ConfigurationHelper.networkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
             {
-                if (await UploadData(data, server, ConfigurationHelper.networkSettings.MarketHistoriesIngestSubject))
+                if (await UploadData(data, server, configurationService.NetworkSettings.MarketHistoriesIngestSubject))
                 {
                     LogHistoryUpload(count, timescale, server);
                     if (count > 0) consoleManager.IncrementHistoriesSent(server, count, timescale);
@@ -123,11 +127,10 @@ namespace AlbionDataSharp.Network
                     await semaphore.WaitAsync();
                     try
                     {
-                        PowSolver solver = new PowSolver();
-                        var powRequest = await solver.GetPowRequest(server, httpClient);
+                        var powRequest = await powSolver.GetPowRequest(server, httpClient);
                         if (powRequest is not null)
                         {
-                            var solution = await solver.SolvePow(powRequest);
+                            var solution = await powSolver.SolvePow(powRequest);
                             if (!string.IsNullOrEmpty(solution))
                             {
                                 await UploadWithPow(powRequest, solution, data, topic, server, httpClient);
@@ -251,7 +254,7 @@ namespace AlbionDataSharp.Network
         }
         private int GetMaxServerNameLength()
         {
-            return ConfigurationHelper.networkSettings.UploadServers.Max(s => s.Name.Length);
+            return configurationService.NetworkSettings.UploadServers.Max(s => s.Name.Length);
         }
 
         private void OnShutDown()
