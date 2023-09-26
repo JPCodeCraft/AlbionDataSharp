@@ -14,10 +14,12 @@ namespace AlbionDataSharp.State
 
         public MarketHistoryInfo[] MarketHistoryIDLookup { get; init; }
         public ulong CacheSize => 8192;
+        ConsoleManager consoleManager;
 
-        public PlayerStatus()
+        public PlayerStatus(ConsoleManager consoleManager)
         {
             MarketHistoryIDLookup = new MarketHistoryInfo[CacheSize];
+            this.consoleManager = consoleManager;
         }
 
         public Location Location
@@ -27,7 +29,7 @@ namespace AlbionDataSharp.State
             {
                 location = value;
                 Log.Information("Player location set to {Location}", Location.ToString());
-                ConsoleManager.SetPlayerLocation(Location);
+                consoleManager.SetPlayerLocation(Location);
             }
         }
         public string PlayerName
@@ -38,7 +40,7 @@ namespace AlbionDataSharp.State
                 if (playerName == value) return;
                 playerName = value;
                 Log.Information("Player name set to {PlayerName}", PlayerName);
-                ConsoleManager.SetPlayerName(PlayerName);
+                consoleManager.SetPlayerName(PlayerName);
             }
         }
         public AlbionServer AlbionServer
@@ -49,7 +51,7 @@ namespace AlbionDataSharp.State
                 if (albionServer == value) return;
                 albionServer = value;
                 Log.Information("Server set to {Server}", AlbionServer);
-                ConsoleManager.SetAlbionServer(AlbionServer);
+                consoleManager.SetAlbionServer(AlbionServer);
             }
         }
 

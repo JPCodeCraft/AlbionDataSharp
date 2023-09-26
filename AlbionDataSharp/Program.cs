@@ -19,18 +19,20 @@ namespace AlbionDataSharp
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
             builder.Services.AddHostedService<NetworkListener>();
+            builder.Services.AddSingleton<ConsoleManager>();
+            builder.Services.AddHostedService(x => x.GetRequiredService<ConsoleManager>());
             builder.Services.AddSingleton<Uploader>();
             builder.Services.AddSingleton<PlayerStatus>();
-            builder.Services.AddSerilog(config =>
-            {
-                config.ReadFrom.Configuration(builder.Configuration);
-                config.WriteTo.Sink(new DelegatingSink(ConsoleManager.AddStateUpdate), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information);
-
-            });
+            builder.Services.AddSerilog();
             IHost host = builder.Build();
 
             ConfigurationHelper.Initialize(host.Services.GetRequiredService<IConfiguration>());
-            ConsoleManager.Initialize();
+
+            var consoleManager = host.Services.GetRequiredService<ConsoleManager>();
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .WriteTo.Sink(new DelegatingSink(consoleManager.AddStateUpdate), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+                .CreateLogger();
 
             host.Run();
         }
