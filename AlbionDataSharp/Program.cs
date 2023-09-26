@@ -1,8 +1,8 @@
 ﻿using AlbionDataSharp.Config;
 using AlbionDataSharp.Network;
+using AlbionDataSharp.Network.Pow;
 using AlbionDataSharp.State;
 using AlbionDataSharp.UI;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -23,15 +23,15 @@ namespace AlbionDataSharp
             builder.Services.AddHostedService(x => x.GetRequiredService<ConsoleManager>());
             builder.Services.AddSingleton<Uploader>();
             builder.Services.AddSingleton<PlayerStatus>();
+            builder.Services.AddSingleton<ConfigurationService>();
+            builder.Services.AddTransient<PowSolver>();
             builder.Services.AddSerilog();
             IHost host = builder.Build();
-
-            ConfigurationHelper.Initialize(host.Services.GetRequiredService<IConfiguration>());
 
             var consoleManager = host.Services.GetRequiredService<ConsoleManager>();
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
-                .WriteTo.Sink(new DelegatingSink(consoleManager.AddStateUpdate), restrictedToMinimumLevel: ConfigurationHelper.uiSettings.ConsoleLogLevel)
+                .WriteTo.Sink(new DelegatingSink(consoleManager.AddStateUpdate), restrictedToMinimumLevel: host.Services.GetRequiredService<ConfigurationService>().UiSettings.ConsoleLogLevel)
                 .CreateLogger();
 
             host.Run();

@@ -11,6 +11,12 @@ namespace AlbionDataSharp.Network.Pow
     public class PowSolver
     {
         private static readonly RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        private ConfigurationService configurationService;
+
+        public PowSolver(ConfigurationService configurationService)
+        {
+            this.configurationService = configurationService;
+        }
 
         public async Task<PowRequest?> GetPowRequest(ServerInfo server, HttpClient client)
         {
@@ -72,7 +78,7 @@ namespace AlbionDataSharp.Network.Pow
             var sw = Stopwatch.StartNew();
 
             string solution = "";
-            int threadLimit = Math.Max(1, (int)(Environment.ProcessorCount * ConfigurationHelper.networkSettings.ThreadLimitPercentage));
+            int threadLimit = Math.Max(1, (int)(Environment.ProcessorCount * configurationService.NetworkSettings.ThreadLimitPercentage));
             var tasks = new List<Task<string>>();
             var tokenSource = new CancellationTokenSource();
             CancellationToken ct = tokenSource.Token;
