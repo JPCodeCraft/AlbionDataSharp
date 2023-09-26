@@ -13,10 +13,14 @@ namespace AlbionDataSharp.Network
     {
         private IPhotonReceiver receiver;
         CaptureDeviceList devices;
+        Uploader uploader;
+        PlayerStatus playerStatus;
 
-        public NetworkListener()
+        public NetworkListener(Uploader uploader, PlayerStatus playerStatus)
         {
             AppDomain.CurrentDomain.ProcessExit += async (s, e) => await Cleanup();
+            this.uploader = uploader;
+            this.playerStatus = playerStatus;
         }
 
         private async Task Cleanup()
@@ -39,13 +43,13 @@ namespace AlbionDataSharp.Network
 
             //ADD HANDLERS HERE
             //RESPONSE
-            builder.AddResponseHandler(new AuctionGetOffersResponseHandler());
-            builder.AddResponseHandler(new AuctionGetRequestsResponseHandler());
-            builder.AddResponseHandler(new AuctionGetItemAverageStatsResponseHandler());
-            builder.AddResponseHandler(new JoinResponseHandler());
-            builder.AddResponseHandler(new AuctionGetGoldAverageStatsResponseHandler());
+            builder.AddResponseHandler(new AuctionGetOffersResponseHandler(uploader, playerStatus));
+            builder.AddResponseHandler(new AuctionGetRequestsResponseHandler(uploader, playerStatus));
+            builder.AddResponseHandler(new AuctionGetItemAverageStatsResponseHandler(uploader, playerStatus));
+            builder.AddResponseHandler(new JoinResponseHandler(playerStatus));
+            builder.AddResponseHandler(new AuctionGetGoldAverageStatsResponseHandler(uploader));
             //REQUEST
-            builder.AddRequestHandler(new AuctionGetItemAverageStatsRequestHandler());
+            builder.AddRequestHandler(new AuctionGetItemAverageStatsRequestHandler(playerStatus));
 
             receiver = builder.Build();
 
@@ -92,15 +96,15 @@ namespace AlbionDataSharp.Network
                         var srcIp = (packet.ParentPacket as IPv4Packet)?.SourceAddress?.ToString();
                         if (srcIp == null || string.IsNullOrEmpty(srcIp))
                         {
-                            PlayerStatus.AlbionServer = AlbionServer.Unknown;
+                            playerStatus.AlbionServer = AlbionServer.Unknown;
                         }
                         else if (srcIp.Contains("5.188.125."))
                         {
-                            PlayerStatus.AlbionServer = AlbionServer.West;
+                            playerStatus.AlbionServer = AlbionServer.West;
                         }
                         else if (srcIp!.Contains("5.45.187."))
                         {
-                            PlayerStatus.AlbionServer = AlbionServer.East;
+                            playerStatus.AlbionServer = AlbionServer.East;
                         }
                     }
                     receiver.ReceivePacket(packet.PayloadData);
