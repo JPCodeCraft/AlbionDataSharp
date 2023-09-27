@@ -1,14 +1,4 @@
-﻿using AlbionData.Models;
-using AlbionDataSharp.Config;
-using AlbionDataSharp.Network;
-using AlbionDataSharp.Network.Events;
-using AlbionDataSharp.State;
-using Microsoft.Extensions.Hosting;
-using Serilog.Events;
-using Spectre.Console;
-using System.Collections.Concurrent;
-
-namespace AlbionDataSharp.UI
+﻿namespace AlbionDataSharp.UI
 {
     public class ConsoleManager : BackgroundService
     {
