@@ -1,12 +1,12 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Config;
 using AlbionDataSharp.Network;
-using AlbionDataSharp.UI;
+using AlbionDataSharp.Network.Events;
 using Serilog;
 
 namespace AlbionDataSharp.State
 {
-    public class PlayerStatus
+    public class PlayerState
     {
         private Location location = 0;
         private string playerName = string.Empty;
@@ -14,12 +14,12 @@ namespace AlbionDataSharp.State
 
         public MarketHistoryInfo[] MarketHistoryIDLookup { get; init; }
         public ulong CacheSize => 8192;
-        ConsoleManager consoleManager;
 
-        public PlayerStatus(ConsoleManager consoleManager)
+        public event EventHandler<PlayerStateEventArgs> OnPlayerStateChanged;
+
+        public PlayerState()
         {
             MarketHistoryIDLookup = new MarketHistoryInfo[CacheSize];
-            this.consoleManager = consoleManager;
         }
 
         public Location Location
@@ -29,7 +29,7 @@ namespace AlbionDataSharp.State
             {
                 location = value;
                 Log.Information("Player location set to {Location}", Location.ToString());
-                consoleManager.SetPlayerLocation(Location);
+                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer));
             }
         }
         public string PlayerName
@@ -40,7 +40,7 @@ namespace AlbionDataSharp.State
                 if (playerName == value) return;
                 playerName = value;
                 Log.Information("Player name set to {PlayerName}", PlayerName);
-                consoleManager.SetPlayerName(PlayerName);
+                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer));
             }
         }
         public AlbionServer AlbionServer
@@ -51,7 +51,7 @@ namespace AlbionDataSharp.State
                 if (albionServer == value) return;
                 albionServer = value;
                 Log.Information("Server set to {Server}", AlbionServer);
-                consoleManager.SetAlbionServer(AlbionServer);
+                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer));
             }
         }
 

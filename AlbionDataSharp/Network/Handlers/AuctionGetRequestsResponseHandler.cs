@@ -8,8 +8,8 @@ namespace AlbionDataSharp.Network.Handlers
     public class AuctionGetRequestsResponseHandler : ResponsePacketHandler<AuctionGetRequestsResponse>
     {
         private readonly Uploader uploader;
-        private readonly PlayerStatus playerStatus;
-        public AuctionGetRequestsResponseHandler(Uploader uploader, PlayerStatus playerStatus) : base((int)OperationCodes.AuctionGetRequests)
+        private readonly PlayerState playerStatus;
+        public AuctionGetRequestsResponseHandler(Uploader uploader, PlayerState playerStatus) : base((int)OperationCodes.AuctionGetRequests)
         {
             this.uploader = uploader;
             this.playerStatus = playerStatus;

@@ -6,8 +6,8 @@ namespace AlbionDataSharp.Network.Handlers
 {
     public class AuctionGetItemAverageStatsRequestHandler : RequestPacketHandler<AuctionGetItemAverageStatsRequest>
     {
-        PlayerStatus playerStatus;
-        public AuctionGetItemAverageStatsRequestHandler(PlayerStatus playerStatus) : base((int)OperationCodes.AuctionGetItemAverageStats)
+        PlayerState playerStatus;
+        public AuctionGetItemAverageStatsRequestHandler(PlayerState playerStatus) : base((int)OperationCodes.AuctionGetItemAverageStats)
         {
             this.playerStatus = playerStatus;
         }

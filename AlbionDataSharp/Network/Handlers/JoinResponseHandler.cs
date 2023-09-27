@@ -6,8 +6,8 @@ namespace AlbionDataSharp.Network.Handlers
 {
     public class JoinResponseHandler : ResponsePacketHandler<JoinResponse>
     {
-        private readonly PlayerStatus playerStatus;
-        public JoinResponseHandler(PlayerStatus playerStatus) : base((int)OperationCodes.Join)
+        private readonly PlayerState playerStatus;
+        public JoinResponseHandler(PlayerState playerStatus) : base((int)OperationCodes.Join)
         {
             this.playerStatus = playerStatus;
         }
