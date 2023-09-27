@@ -9,21 +9,21 @@ namespace AlbionDataSharp.Network.Handlers
     public class AuctionGetItemAverageStatsResponseHandler : ResponsePacketHandler<AuctionGetItemAverageStatsResponse>
     {
         private readonly Uploader uploader;
-        private readonly PlayerState playerStatus;
-        public AuctionGetItemAverageStatsResponseHandler(Uploader uploader, PlayerState playerStatus) : base((int)OperationCodes.AuctionGetItemAverageStats)
+        private readonly PlayerState playerState;
+        public AuctionGetItemAverageStatsResponseHandler(Uploader uploader, PlayerState playerState) : base((int)OperationCodes.AuctionGetItemAverageStats)
         {
             this.uploader = uploader;
-            this.playerStatus = playerStatus;
+            this.playerState = playerState;
         }
 
         protected override async Task OnActionAsync(AuctionGetItemAverageStatsResponse value)
         {
-            if (!playerStatus.CheckLocationIDIsSet()) return;
+            if (!playerState.CheckLocationIDIsSet()) return;
 
             MarketHistoriesUpload marketHistoriesUpload = new MarketHistoriesUpload();
 
             //load info from history
-            MarketHistoryInfo info = playerStatus.MarketHistoryIDLookup[value.messageID % playerStatus.CacheSize];
+            MarketHistoryInfo info = playerState.MarketHistoryIDLookup[value.messageID % playerState.CacheSize];
             if (info == null)
             {
                 Log.Warning("Market History - No info found for messageID {MessageID}. ", value.messageID);

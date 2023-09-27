@@ -6,16 +6,16 @@ namespace AlbionDataSharp.Network.Handlers
 {
     public class JoinResponseHandler : ResponsePacketHandler<JoinResponse>
     {
-        private readonly PlayerState playerStatus;
-        public JoinResponseHandler(PlayerState playerStatus) : base((int)OperationCodes.Join)
+        private readonly PlayerState playerState;
+        public JoinResponseHandler(PlayerState playerState) : base((int)OperationCodes.Join)
         {
-            this.playerStatus = playerStatus;
+            this.playerState = playerState;
         }
 
         protected override async Task OnActionAsync(JoinResponse value)
         {
-            playerStatus.PlayerName = value.playerName;
-            playerStatus.Location = value.playerLocation;
+            playerState.PlayerName = value.playerName;
+            playerState.Location = value.playerLocation;
             await Task.CompletedTask;
         }
     }
