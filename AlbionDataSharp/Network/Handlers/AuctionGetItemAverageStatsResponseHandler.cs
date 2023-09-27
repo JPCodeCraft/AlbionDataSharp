@@ -9,8 +9,8 @@ namespace AlbionDataSharp.Network.Handlers
     public class AuctionGetItemAverageStatsResponseHandler : ResponsePacketHandler<AuctionGetItemAverageStatsResponse>
     {
         private readonly Uploader uploader;
-        private readonly PlayerStatus playerStatus;
-        public AuctionGetItemAverageStatsResponseHandler(Uploader uploader, PlayerStatus playerStatus) : base((int)OperationCodes.AuctionGetItemAverageStats)
+        private readonly PlayerState playerStatus;
+        public AuctionGetItemAverageStatsResponseHandler(Uploader uploader, PlayerState playerStatus) : base((int)OperationCodes.AuctionGetItemAverageStats)
         {
             this.uploader = uploader;
             this.playerStatus = playerStatus;

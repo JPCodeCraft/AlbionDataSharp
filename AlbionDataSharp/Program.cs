@@ -22,7 +22,7 @@ namespace AlbionDataSharp
             builder.Services.AddSingleton<ConsoleManager>();
             builder.Services.AddHostedService(x => x.GetRequiredService<ConsoleManager>());
             builder.Services.AddSingleton<Uploader>();
-            builder.Services.AddSingleton<PlayerStatus>();
+            builder.Services.AddSingleton<PlayerState>();
             builder.Services.AddSingleton<ConfigurationService>();
             builder.Services.AddTransient<PowSolver>();
             builder.Services.AddSerilog();
