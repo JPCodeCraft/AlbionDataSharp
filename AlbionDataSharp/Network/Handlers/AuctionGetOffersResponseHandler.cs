@@ -8,20 +8,20 @@ namespace AlbionDataSharp.Network.Handlers
     public class AuctionGetOffersResponseHandler : ResponsePacketHandler<AuctionGetOffersResponse>
     {
         private readonly Uploader uploader;
-        private readonly PlayerState playerStatus;
-        public AuctionGetOffersResponseHandler(Uploader uploader, PlayerState playerStatus) : base((int)OperationCodes.AuctionGetOffers)
+        private readonly PlayerState playerState;
+        public AuctionGetOffersResponseHandler(Uploader uploader, PlayerState playerState) : base((int)OperationCodes.AuctionGetOffers)
         {
             this.uploader = uploader;
-            this.playerStatus = playerStatus;
+            this.playerState = playerState;
         }
 
         protected override async Task OnActionAsync(AuctionGetOffersResponse value)
         {
-            if (!playerStatus.CheckLocationIDIsSet()) return;
+            if (!playerState.CheckLocationIDIsSet()) return;
 
             MarketUpload marketUpload = new MarketUpload();
 
-            value.marketOrders.ForEach(x => x.LocationId = (ushort)playerStatus.Location);
+            value.marketOrders.ForEach(x => x.LocationId = (ushort)playerState.Location);
             marketUpload.Orders.AddRange(value.marketOrders);
 
             if (marketUpload.Orders.Count > 0)

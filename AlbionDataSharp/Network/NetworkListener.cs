@@ -14,13 +14,13 @@ namespace AlbionDataSharp.Network
         private IPhotonReceiver receiver;
         CaptureDeviceList devices;
         Uploader uploader;
-        PlayerState playerStatus;
+        PlayerState playerState;
 
-        public NetworkListener(Uploader uploader, PlayerState playerStatus)
+        public NetworkListener(Uploader uploader, PlayerState playerState)
         {
             AppDomain.CurrentDomain.ProcessExit += async (s, e) => await Cleanup();
             this.uploader = uploader;
-            this.playerStatus = playerStatus;
+            this.playerState = playerState;
         }
 
         private async Task Cleanup()
@@ -43,13 +43,13 @@ namespace AlbionDataSharp.Network
 
             //ADD HANDLERS HERE
             //RESPONSE
-            builder.AddResponseHandler(new AuctionGetOffersResponseHandler(uploader, playerStatus));
-            builder.AddResponseHandler(new AuctionGetRequestsResponseHandler(uploader, playerStatus));
-            builder.AddResponseHandler(new AuctionGetItemAverageStatsResponseHandler(uploader, playerStatus));
-            builder.AddResponseHandler(new JoinResponseHandler(playerStatus));
+            builder.AddResponseHandler(new AuctionGetOffersResponseHandler(uploader, playerState));
+            builder.AddResponseHandler(new AuctionGetRequestsResponseHandler(uploader, playerState));
+            builder.AddResponseHandler(new AuctionGetItemAverageStatsResponseHandler(uploader, playerState));
+            builder.AddResponseHandler(new JoinResponseHandler(playerState));
             builder.AddResponseHandler(new AuctionGetGoldAverageStatsResponseHandler(uploader));
             //REQUEST
-            builder.AddRequestHandler(new AuctionGetItemAverageStatsRequestHandler(playerStatus));
+            builder.AddRequestHandler(new AuctionGetItemAverageStatsRequestHandler(playerState));
 
             receiver = builder.Build();
 
@@ -91,20 +91,20 @@ namespace AlbionDataSharp.Network
                 UdpPacket packet = Packet.ParsePacket(e.GetPacket().LinkLayerType, e.GetPacket().Data).Extract<UdpPacket>();
                 if (packet != null)
                 {
-                    //if (PlayerStatus.Server == Servers.unkown)
+                    //if (PlayerState.Server == Servers.unkown)
                     {
                         var srcIp = (packet.ParentPacket as IPv4Packet)?.SourceAddress?.ToString();
                         if (srcIp == null || string.IsNullOrEmpty(srcIp))
                         {
-                            playerStatus.AlbionServer = AlbionServer.Unknown;
+                            playerState.AlbionServer = AlbionServer.Unknown;
                         }
                         else if (srcIp.Contains("5.188.125."))
                         {
-                            playerStatus.AlbionServer = AlbionServer.West;
+                            playerState.AlbionServer = AlbionServer.West;
                         }
                         else if (srcIp!.Contains("5.45.187."))
                         {
-                            playerStatus.AlbionServer = AlbionServer.East;
+                            playerState.AlbionServer = AlbionServer.East;
                         }
                     }
                     receiver.ReceivePacket(packet.PayloadData);

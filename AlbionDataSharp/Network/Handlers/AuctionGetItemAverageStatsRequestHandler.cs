@@ -6,23 +6,23 @@ namespace AlbionDataSharp.Network.Handlers
 {
     public class AuctionGetItemAverageStatsRequestHandler : RequestPacketHandler<AuctionGetItemAverageStatsRequest>
     {
-        PlayerState playerStatus;
-        public AuctionGetItemAverageStatsRequestHandler(PlayerState playerStatus) : base((int)OperationCodes.AuctionGetItemAverageStats)
+        PlayerState playerState;
+        public AuctionGetItemAverageStatsRequestHandler(PlayerState playerState) : base((int)OperationCodes.AuctionGetItemAverageStats)
         {
-            this.playerStatus = playerStatus;
+            this.playerState = playerState;
         }
 
         protected override async Task OnActionAsync(AuctionGetItemAverageStatsRequest value)
         {
-            if (!playerStatus.CheckLocationIDIsSet()) return;
+            if (!playerState.CheckLocationIDIsSet()) return;
 
             MarketHistoryInfo info = new MarketHistoryInfo();
-            playerStatus.MarketHistoryIDLookup[value.messageID % playerStatus.CacheSize] = info;
+            playerState.MarketHistoryIDLookup[value.messageID % playerState.CacheSize] = info;
 
             info.Quality = value.quality;
             info.Timescale = value.timescale;
             info.AlbionId = value.albionId;
-            info.LocationID = ((int)playerStatus.Location).ToString();
+            info.LocationID = ((int)playerState.Location).ToString();
 
             await Task.CompletedTask;
         }

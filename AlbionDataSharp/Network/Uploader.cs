@@ -17,7 +17,7 @@ namespace AlbionDataSharp.Network
         private readonly HttpClient httpClient = new HttpClient();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         private readonly Dictionary<Config.ServerInfo, IConnection> natsConnections = new Dictionary<Config.ServerInfo, IConnection>();
-        private PlayerState playerStatus;
+        private PlayerState playerState;
         private ConfigurationService configurationService;
         private PowSolver powSolver;
 
@@ -26,9 +26,9 @@ namespace AlbionDataSharp.Network
         public event EventHandler<MarketUploadEventArgs> OnMarketUpload;
         public event EventHandler<GoldPriceUploadEventArgs> OnGoldPriceUpload;
         public event EventHandler<MarketHistoriesUploadEventArgs> OnMarketHistoryUpload;
-        public Uploader(PlayerState playerStatus, ConfigurationService configurationService, PowSolver powSolver)
+        public Uploader(PlayerState playerState, ConfigurationService configurationService, PowSolver powSolver)
         {
-            this.playerStatus = playerStatus;
+            this.playerState = playerState;
             this.configurationService = configurationService;
             this.powSolver = powSolver;
 
@@ -63,7 +63,7 @@ namespace AlbionDataSharp.Network
             var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
             var requests = marketUpload.Orders.Where(x => x.AuctionType == "request").Count();
             var data = SerializeData(marketUpload);
-            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer))
             {
                 if (await UploadData(data, server, configurationService.NetworkSettings.MarketOrdersIngestSubject))
                 {
@@ -76,7 +76,7 @@ namespace AlbionDataSharp.Network
         {
             var amount = goldHistoryUpload.Prices.Length;
             var data = SerializeData(goldHistoryUpload);
-            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer))
             {
                 if (await UploadData(data, server, configurationService.NetworkSettings.GoldDataIngestSubject))
                 {
@@ -92,7 +92,7 @@ namespace AlbionDataSharp.Network
             var count = marketHistoriesUpload.MarketHistories.Count;
             var timescale = marketHistoriesUpload.Timescale;
             var data = SerializeData(marketHistoriesUpload);
-            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerStatus.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer))
             {
                 if (await UploadData(data, server, configurationService.NetworkSettings.MarketHistoriesIngestSubject))
                 {
