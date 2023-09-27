@@ -1,5 +1,8 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Config;
+using AlbionDataSharp.Network;
+using AlbionDataSharp.Network.Events;
+using AlbionDataSharp.State;
 using Microsoft.Extensions.Hosting;
 using Serilog.Events;
 using Spectre.Console;
@@ -38,21 +41,38 @@ namespace AlbionDataSharp.UI
             new ConcurrentDictionary<ServerInfo, ConcurrentDictionary<Timescale, int>>();
 
         private ConfigurationService configurationService;
-
-        public ConsoleManager(ConfigurationService configurationService)
-        {
-            this.configurationService = configurationService;
-        }
+        private Uploader uploader;
+        private PlayerState playerState;
 
         private string playerName = string.Empty;
         private Location playerLocation = 0;
         private AlbionServer albionServer = AlbionServer.Unknown;
 
+        EventHandler<MarketUploadEventArgs> marketUploadHandler;
+        EventHandler<GoldPriceUploadEventArgs> goldPriceUploadHandler;
+        EventHandler<MarketHistoriesUploadEventArgs> marketHistoryUploadHandler;
+        EventHandler<PlayerStateEventArgs> playerStateHandler;
+        public ConsoleManager(ConfigurationService configurationService, Uploader uploader, PlayerState playerState)
+        {
+            this.configurationService = configurationService;
+            this.uploader = uploader;
+            this.playerState = playerState;
+
+            marketUploadHandler = (sender, args) => ProcessMarketUpload(args.MarketUpload, args.Server);
+            goldPriceUploadHandler = (sender, args) => ProcessGoldPriceUpload(args.GoldPriceUpload, args.Server);
+            marketHistoryUploadHandler = (sender, args) => ProcessMarketHistoriesUpload(args.MarketHistoriesUpload, args.Server);
+            playerStateHandler = (sender, args) => ProcessPlayerState(args.Location, args.Name, args.AlbionServer);
+
+            uploader.OnMarketUpload += marketUploadHandler;
+            uploader.OnGoldPriceUpload += goldPriceUploadHandler;
+            uploader.OnMarketHistoryUpload += marketHistoryUploadHandler;
+            playerState.OnPlayerStateChanged += playerStateHandler;
+        }
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Initialize();
         }
-
         public async Task Initialize()
         {
             serversTable.Columns.ToList().ForEach(x => x.Alignment = Justify.Center);
@@ -60,54 +80,46 @@ namespace AlbionDataSharp.UI
             WriteTable();
             await Monitor();
         }
+        public override async Task StopAsync(CancellationToken stoppingToken)
+        {
+            uploader.OnMarketUpload -= marketUploadHandler;
+            uploader.OnGoldPriceUpload -= goldPriceUploadHandler;
+            uploader.OnMarketHistoryUpload -= marketHistoryUploadHandler;
+            playerState.OnPlayerStateChanged -= playerStateHandler;
+            await base.StopAsync(stoppingToken);
+        }
         private List<ServerInfo> GetAllServers()
         {
             return configurationService.NetworkSettings.UploadServers.ToList();
         }
-
-        public void SetPlayerName(string name)
+        public void ProcessPlayerState(Location location, string name, AlbionServer albionServer)
         {
             playerName = name;
-            Flag();
-        }
-
-        public void SetPlayerLocation(Location location)
-        {
             playerLocation = location;
-            Flag();
+            this.albionServer = albionServer;
+            FlagReWrite();
         }
-
-        public void SetAlbionServer(AlbionServer server)
+        public void ProcessMarketUpload(MarketUpload marketUpload, ServerInfo server)
         {
-            albionServer = server;
-            Flag();
+            int offers = marketUpload.Orders.Count(x => x.AuctionType == "offer");
+            int requests = marketUpload.Orders.Count(x => x.AuctionType == "request");
+            offersSentCount.AddOrUpdate(server, offers, (key, oldValue) => oldValue + offers);
+            requestsSentCount.AddOrUpdate(server, requests, (key, oldValue) => oldValue + requests);
+            FlagReWrite();
         }
-
-        public void IncrementOffersSent(ServerInfo server, int count)
-        {
-            offersSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
-            Flag();
-        }
-
-        public void IncrementRequestsSent(ServerInfo server, int count)
-        {
-            requestsSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
-            Flag();
-        }
-
-        public void IncrementHistoriesSent(ServerInfo server, int count, Timescale timescale)
+        public void ProcessMarketHistoriesUpload(MarketHistoriesUpload marketHistoriesUpload, ServerInfo server)
         {
             var serverCounts = historiesSentCount.GetOrAdd(server, new ConcurrentDictionary<Timescale, int>());
-            serverCounts.AddOrUpdate(timescale, count, (key, oldValue) => oldValue + count);
-            Flag();
+            var count = marketHistoriesUpload.MarketHistories.Count;
+            serverCounts.AddOrUpdate(marketHistoriesUpload.Timescale, count, (key, oldValue) => oldValue + count);
+            FlagReWrite();
         }
-
-        internal void IncrementGoldHistoriesSent(ServerInfo server, int count)
+        internal void ProcessGoldPriceUpload(GoldPriceUpload goldPriceUpload, ServerInfo server)
         {
+            var count = goldPriceUpload.Prices.Count();
             goldHistoriesSentCount.AddOrUpdate(server, count, (key, oldValue) => oldValue + count);
-            Flag();
+            FlagReWrite();
         }
-
         public void AddStateUpdate(LogEvent logEvent)
         {
             stateUpdates.Enqueue(logEvent);
@@ -115,9 +127,8 @@ namespace AlbionDataSharp.UI
             {
                 stateUpdates.TryDequeue(out _);
             }
-            Flag();
+            FlagReWrite();
         }
-
         public async Task Monitor()
         {
             int currentWidth = Console.WindowWidth;
@@ -127,7 +138,7 @@ namespace AlbionDataSharp.UI
             {
                 if (currentWidth != Console.WindowWidth || currentHeight != Console.WindowHeight)
                 {
-                    Flag();
+                    FlagReWrite();
                     currentWidth = Console.WindowWidth;
                     currentHeight = Console.WindowHeight;
                 }
@@ -138,12 +149,10 @@ namespace AlbionDataSharp.UI
                 await Task.Delay(configurationService.UiSettings.ConsoleRefreshRateMs);
             }
         }
-
-        private void Flag()
+        private void FlagReWrite()
         {
             shouldRewrite = true;
         }
-
         private void WriteTable()
         {
             // Clear existing rows

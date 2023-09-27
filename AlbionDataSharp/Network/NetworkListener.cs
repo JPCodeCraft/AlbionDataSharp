@@ -14,9 +14,9 @@ namespace AlbionDataSharp.Network
         private IPhotonReceiver receiver;
         CaptureDeviceList devices;
         Uploader uploader;
-        PlayerStatus playerStatus;
+        PlayerState playerStatus;
 
-        public NetworkListener(Uploader uploader, PlayerStatus playerStatus)
+        public NetworkListener(Uploader uploader, PlayerState playerStatus)
         {
             AppDomain.CurrentDomain.ProcessExit += async (s, e) => await Cleanup();
             this.uploader = uploader;

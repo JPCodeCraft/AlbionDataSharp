@@ -1,8 +1,8 @@
 ﻿using AlbionData.Models;
 using AlbionDataSharp.Config;
+using AlbionDataSharp.Network.Events;
 using AlbionDataSharp.Network.Pow;
 using AlbionDataSharp.State;
-using AlbionDataSharp.UI;
 using NATS.Client;
 using Serilog;
 using System.Net;
@@ -17,16 +17,18 @@ namespace AlbionDataSharp.Network
         private readonly HttpClient httpClient = new HttpClient();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         private readonly Dictionary<Config.ServerInfo, IConnection> natsConnections = new Dictionary<Config.ServerInfo, IConnection>();
-        private PlayerStatus playerStatus;
-        private ConsoleManager consoleManager;
+        private PlayerState playerStatus;
         private ConfigurationService configurationService;
         private PowSolver powSolver;
 
-        int maxServerNameLength;
-        public Uploader(PlayerStatus playerStatus, ConsoleManager consoleManager, ConfigurationService configurationService, PowSolver powSolver)
+        private int maxServerNameLength;
+
+        public event EventHandler<MarketUploadEventArgs> OnMarketUpload;
+        public event EventHandler<GoldPriceUploadEventArgs> OnGoldPriceUpload;
+        public event EventHandler<MarketHistoriesUploadEventArgs> OnMarketHistoryUpload;
+        public Uploader(PlayerState playerStatus, ConfigurationService configurationService, PowSolver powSolver)
         {
             this.playerStatus = playerStatus;
-            this.consoleManager = consoleManager;
             this.configurationService = configurationService;
             this.powSolver = powSolver;
 
@@ -66,8 +68,7 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, configurationService.NetworkSettings.MarketOrdersIngestSubject))
                 {
                     LogOfferRequestUpload(offers, requests, server);
-                    if (offers > 0) consoleManager.IncrementOffersSent(server, offers);
-                    if (requests > 0) consoleManager.IncrementRequestsSent(server, requests);
+                    OnMarketUpload?.Invoke(this, new MarketUploadEventArgs(marketUpload, server));
                 }
             }
         }
@@ -80,7 +81,7 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, configurationService.NetworkSettings.GoldDataIngestSubject))
                 {
                     LogGoldHistoryUpload(amount, server);
-                    if (amount > 0) consoleManager.IncrementGoldHistoriesSent(server, amount);
+                    OnGoldPriceUpload?.Invoke(this, new GoldPriceUploadEventArgs(goldHistoryUpload, server));
                 }
             }
         }
@@ -96,7 +97,7 @@ namespace AlbionDataSharp.Network
                 if (await UploadData(data, server, configurationService.NetworkSettings.MarketHistoriesIngestSubject))
                 {
                     LogHistoryUpload(count, timescale, server);
-                    if (count > 0) consoleManager.IncrementHistoriesSent(server, count, timescale);
+                    OnMarketHistoryUpload?.Invoke(this, new MarketHistoriesUploadEventArgs(marketHistoriesUpload, server));
                 }
             }
         }
@@ -105,8 +106,7 @@ namespace AlbionDataSharp.Network
         {
             return JsonSerializer.SerializeToUtf8Bytes(upload, new JsonSerializerOptions { IncludeFields = true });
         }
-
-        protected async Task<bool> UploadData(byte[] data, Config.ServerInfo server, string topic)
+        private async Task<bool> UploadData(byte[] data, Config.ServerInfo server, string topic)
         {
             try
             {
@@ -167,7 +167,6 @@ namespace AlbionDataSharp.Network
             }
 
         }
-
         private async Task UploadWithPow(PowRequest pow, string solution, byte[] data, string topic, Config.ServerInfo server, HttpClient client)
         {
             string fullURL = server.Url + "/pow/" + topic;
@@ -195,7 +194,6 @@ namespace AlbionDataSharp.Network
             Log.Debug("Successfully sent ingest request to {0}", fullURL);
             return;
         }
-
         private bool UploadToNats(byte[] data, string topic, Config.ServerInfo server, IConnection natsConnection)
         {
             try
@@ -221,8 +219,7 @@ namespace AlbionDataSharp.Network
             }
             return false;
         }
-
-        protected void LogOfferRequestUpload(int offers, int requests, Config.ServerInfo server)
+        private void LogOfferRequestUpload(int offers, int requests, Config.ServerInfo server)
         {
             string paddedServerName = server.Name.PadRight(maxServerNameLength);
             string serverMarkup = $"[{server.Color}]{paddedServerName}[/]";
@@ -234,8 +231,7 @@ namespace AlbionDataSharp.Network
             else if (offers == 0 && requests == 0) Log.Debug($"{serverMarkup} Published nothing.");
             else Log.Information($"{serverMarkup} Published {offersMarkup} offers and {requestsMarkup} requests.");
         }
-
-        protected void LogHistoryUpload(int count, Timescale timescale, Config.ServerInfo server)
+        private void LogHistoryUpload(int count, Timescale timescale, Config.ServerInfo server)
         {
             string paddedServerName = server.Name.PadRight(maxServerNameLength);
             string serverMarkup = $"[{server.Color}]{paddedServerName}[/]";
@@ -244,7 +240,7 @@ namespace AlbionDataSharp.Network
 
             Log.Information($"{serverMarkup} Published {countMarkup} histories in timescale {timescaleMarkup}.");
         }
-        protected void LogGoldHistoryUpload(int count, Config.ServerInfo server)
+        private void LogGoldHistoryUpload(int count, Config.ServerInfo server)
         {
             string paddedServerName = server.Name.PadRight(maxServerNameLength);
             string serverMarkup = $"[{server.Color}]{paddedServerName}[/]";
@@ -256,7 +252,6 @@ namespace AlbionDataSharp.Network
         {
             return configurationService.NetworkSettings.UploadServers.Max(s => s.Name.Length);
         }
-
         private void OnShutDown()
         {
             // Close and flush NATS connections here
