@@ -16,7 +16,7 @@ namespace AlbionDataSharp.Network
     {
         private readonly HttpClient httpClient = new HttpClient();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
-        private readonly Dictionary<Config.ServerInfo, IConnection> natsConnections = new Dictionary<Config.ServerInfo, IConnection>();
+        private readonly Dictionary<ServerInfo, IConnection> natsConnections = new Dictionary<ServerInfo, IConnection>();
         private PlayerState playerState;
         private ConfigurationService configurationService;
         private PowSolver powSolver;
@@ -33,7 +33,6 @@ namespace AlbionDataSharp.Network
             this.powSolver = powSolver;
 
             maxServerNameLength = GetMaxServerNameLength();
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => OnShutDown();
             foreach (var server in configurationService.NetworkSettings.UploadServers)
             {
                 if (server.UploadType == UploadType.Nats)
@@ -252,7 +251,7 @@ namespace AlbionDataSharp.Network
         {
             return configurationService.NetworkSettings.UploadServers.Max(s => s.Name.Length);
         }
-        private void OnShutDown()
+        public void OnShutDown()
         {
             // Close and flush NATS connections here
             foreach (var connection in natsConnections.Values)
@@ -260,6 +259,8 @@ namespace AlbionDataSharp.Network
                 connection.Drain();
                 connection.Close();
             }
+            httpClient.Dispose();
+            Log.Information("Closed all {type} Connections!", nameof(Uploader));
         }
     }
 }

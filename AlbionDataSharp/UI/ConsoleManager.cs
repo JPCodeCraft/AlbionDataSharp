@@ -4,6 +4,7 @@ using AlbionDataSharp.Network;
 using AlbionDataSharp.Network.Events;
 using AlbionDataSharp.State;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using Serilog.Events;
 using Spectre.Console;
 using System.Collections.Concurrent;
@@ -86,6 +87,8 @@ namespace AlbionDataSharp.UI
             uploader.OnGoldPriceUpload -= goldPriceUploadHandler;
             uploader.OnMarketHistoryUpload -= marketHistoryUploadHandler;
             playerState.OnPlayerStateChanged -= playerStateHandler;
+            Log.Information("Stopped {type}!", nameof(ConsoleManager));
+            Log.CloseAndFlush();
             await base.StopAsync(stoppingToken);
         }
         private List<ServerInfo> GetAllServers()
