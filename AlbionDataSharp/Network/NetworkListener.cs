@@ -9,7 +9,7 @@ using SharpPcap;
 
 namespace AlbionDataSharp.Network
 {
-    internal class NetworkListener : IHostedService
+    internal class NetworkListener : BackgroundService
     {
         private IPhotonReceiver receiver;
         CaptureDeviceList devices;
@@ -18,7 +18,6 @@ namespace AlbionDataSharp.Network
 
         public NetworkListener(Uploader uploader, PlayerState playerState)
         {
-            AppDomain.CurrentDomain.ProcessExit += async (s, e) => await Cleanup();
             this.uploader = uploader;
             this.playerState = playerState;
         }
@@ -32,12 +31,13 @@ namespace AlbionDataSharp.Network
                 {
                     device.StopCapture();
                     device.Close();
+                    Log.Debug("Close... {Device}", device.Description);
                 }
             }
-            await Log.CloseAndFlushAsync();
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             ReceiverBuilder builder = ReceiverBuilder.Create();
 
@@ -80,9 +80,11 @@ namespace AlbionDataSharp.Network
             return Task.CompletedTask;
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            await Task.CompletedTask;
+            await Cleanup();
+            Log.Information("Stopped {type}!", nameof(NetworkListener));
+            await base.StopAsync(stoppingToken);
         }
         private void PacketHandler(object sender, PacketCapture e)
         {
@@ -116,6 +118,5 @@ namespace AlbionDataSharp.Network
             }
 
         }
-
     }
 }

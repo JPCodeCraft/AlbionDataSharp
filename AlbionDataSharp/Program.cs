@@ -14,13 +14,14 @@ namespace AlbionDataSharp
 
         private static void Main(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(GlobalExceptionHandler);
+            //AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(GlobalExceptionHandler);
 
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-            builder.Services.AddHostedService<NetworkListener>();
+            //builder.Services.AddHostedService<ConsoleManager>();
             builder.Services.AddSingleton<ConsoleManager>();
-            builder.Services.AddHostedService(x => x.GetRequiredService<ConsoleManager>());
+            builder.Services.AddHostedService(x => x.GetRequiredService<ConsoleManager>()); //this makes sure we are using the same instance of ConsoleManager
+            builder.Services.AddHostedService<NetworkListener>();
             builder.Services.AddSingleton<Uploader>();
             builder.Services.AddSingleton<PlayerState>();
             builder.Services.AddSingleton<ConfigurationService>();
@@ -33,6 +34,14 @@ namespace AlbionDataSharp
                 .ReadFrom.Configuration(builder.Configuration)
                 .WriteTo.Sink(new DelegatingSink(consoleManager.AddStateUpdate), restrictedToMinimumLevel: host.Services.GetRequiredService<ConfigurationService>().UiSettings.ConsoleLogLevel)
                 .CreateLogger();
+
+            var lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
+            lifetime.ApplicationStopping.Register(() => host.Services.GetRequiredService<Uploader>().OnShutDown());
+            AppDomain.CurrentDomain.ProcessExit += async (s, e) =>
+            {
+                lifetime.StopApplication();
+                await host.StopAsync();
+            };
 
             host.Run();
         }
