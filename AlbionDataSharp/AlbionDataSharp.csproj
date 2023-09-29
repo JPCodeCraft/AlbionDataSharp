@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,8 +11,11 @@
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.1.1.0</Version>
+		<Version>0.2.0.0</Version>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<AssemblyName>Albion Data Sharp</AssemblyName>
+		<Company>Augusto A</Company>
+		<Authors>Augusto A</Authors>
 	</PropertyGroup>
 
 	<ItemGroup>

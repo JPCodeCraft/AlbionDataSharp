@@ -23,6 +23,7 @@ namespace AlbionDataSharp
                 onAppUninstall: OnAppUninstall,
                 onEveryRun: OnAppRun);
 
+
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
             builder.Services.AddSingleton<ConsoleManager>();
