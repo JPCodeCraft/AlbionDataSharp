@@ -13,7 +13,7 @@ namespace AlbionDataSharp
     public class Program
     {
 
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             //AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(GlobalExceptionHandler);
 
@@ -23,6 +23,7 @@ namespace AlbionDataSharp
                 onAppUninstall: OnAppUninstall,
                 onEveryRun: OnAppRun);
 
+            await UpdateMyApp();
 
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
@@ -72,6 +73,23 @@ namespace AlbionDataSharp
         private static void OnAppRun(SemanticVersion version, IAppTools tools, bool firstRun)
         {
             tools.SetProcessAppUserModelId();
+        }
+        private static async Task UpdateMyApp()
+        {
+            try
+            {
+                using var mgr = new GithubUpdateManager("https://github.com/augusto501/AlbionDataSharp");
+                var newVersion = await mgr.UpdateApp();
+
+                // optionally restart the app automatically, or ask the user if/when they want to restart
+                if (newVersion != null)
+                {
+                    UpdateManager.RestartApp();
+                }
+            }
+            catch
+            {
+            }
         }
 
     }
