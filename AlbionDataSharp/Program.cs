@@ -23,9 +23,6 @@ namespace AlbionDataSharp
                 onAppUninstall: OnAppUninstall,
                 onEveryRun: OnAppRun);
 
-
-            Console.WriteLine("Checking for updates... Please wait, this won't take longer than a minute.");
-            await Task.Delay(TimeSpan.FromSeconds(0.5));
             await UpdateMyApp();
 
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
@@ -81,17 +78,28 @@ namespace AlbionDataSharp
         {
             try
             {
+                Console.WriteLine("Checking for updates... Please wait, this won't take longer than a minute.");
+                await Task.Delay(TimeSpan.FromSeconds(0.5));
                 ReleaseEntry newVersion;
 
                 using (var mgr = new GithubUpdateManager("https://github.com/augusto501/AlbionDataSharp"))
                 {
                     newVersion = await mgr.UpdateApp();
+                    Console.WriteLine("Done checking for updates...");
+                    await Task.Delay(TimeSpan.FromSeconds(0.5));
                 }
 
                 // optionally restart the app automatically, or ask the user if/when they want to restart
                 if (newVersion != null)
                 {
+                    Console.WriteLine("Found a new version! Restarting the client...");
+                    await Task.Delay(TimeSpan.FromSeconds(0.5));
                     UpdateManager.RestartApp();
+                }
+                else
+                {
+                    Console.WriteLine("Your client is the latest version! Enjoy your silver!");
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                 }
             }
             catch
