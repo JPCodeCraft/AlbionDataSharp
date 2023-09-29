@@ -78,12 +78,26 @@ namespace AlbionDataSharp
         {
             try
             {
-                using var mgr = new GithubUpdateManager("https://github.com/augusto501/AlbionDataSharp");
-                var newVersion = await mgr.UpdateApp();
+                ReleaseEntry newVersion;
+
+                Console.WriteLine("Checking for updates...");
+
+                await Task.Delay(TimeSpan.FromSeconds(2));
+
+                using (var mgr = new GithubUpdateManager("https://github.com/augusto501/AlbionDataSharp"))
+                {
+                    newVersion = await mgr.UpdateApp();
+
+                    Console.WriteLine("Done checking for updates.");
+
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+                }
 
                 // optionally restart the app automatically, or ask the user if/when they want to restart
                 if (newVersion != null)
                 {
+                    Console.WriteLine("Update available! Restarting the client...");
+                    await Task.Delay(TimeSpan.FromSeconds(2));
                     UpdateManager.RestartApp();
                 }
             }
