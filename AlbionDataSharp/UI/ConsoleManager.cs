@@ -8,6 +8,7 @@ using Serilog;
 using Serilog.Events;
 using Spectre.Console;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace AlbionDataSharp.UI
 {
@@ -28,7 +29,6 @@ namespace AlbionDataSharp.UI
             .AddColumns("[bold]Server[/]", "[bold]Offers[/]", "[bold]Requests[/]", "[bold]Histories (Month)[/]", "[bold]Histories (Week)[/]", "[bold]Histories (Day)[/]", "[bold]Gold Histories[/]")
             .Expand();
         private readonly Table playerTable = new Table()
-            .Title("[bold underline yellow]Albion Data Sharp[/]")
             .Border(TableBorder.Double)
             .AddColumns("[bold]Player Server[/]", "[bold]Player Name[/]", "[bold]Player Location[/]")
             .Expand();
@@ -48,6 +48,8 @@ namespace AlbionDataSharp.UI
         private string playerName = string.Empty;
         private Location playerLocation = 0;
         private AlbionServer albionServer = AlbionServer.Unknown;
+
+        private string version = string.Empty;
 
         private EventHandler<MarketUploadEventArgs> marketUploadHandler;
         private EventHandler<GoldPriceUploadEventArgs> goldPriceUploadHandler;
@@ -76,6 +78,9 @@ namespace AlbionDataSharp.UI
         }
         private async Task Initialize()
         {
+            version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+
+            playerTable.Title($"[bold underline yellow]Albion Data Sharp (v. {version})[/]");
             serversTable.Columns.ToList().ForEach(x => x.Alignment = Justify.Center);
             playerTable.Columns.ToList().ForEach(x => x.Alignment = Justify.Center);
             WriteTable();
