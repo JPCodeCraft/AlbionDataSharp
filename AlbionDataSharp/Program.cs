@@ -6,6 +6,7 @@ using AlbionDataSharp.UI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Squirrel;
 
 namespace AlbionDataSharp
 {
@@ -15,6 +16,12 @@ namespace AlbionDataSharp
         private static void Main(string[] args)
         {
             //AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(GlobalExceptionHandler);
+
+            // run Squirrel first, as the app may exit after these run
+            SquirrelAwareApp.HandleEvents(
+                onInitialInstall: OnAppInstall,
+                onAppUninstall: OnAppUninstall,
+                onEveryRun: OnAppRun);
 
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
@@ -50,6 +57,20 @@ namespace AlbionDataSharp
         {
             Exception e = (Exception)args.ExceptionObject;
             Log.Error("GlobalExceptionHandler caught : " + e.Message);
+        }
+        private static void OnAppInstall(SemanticVersion version, IAppTools tools)
+        {
+            tools.CreateShortcutForThisExe(ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
+        }
+
+        private static void OnAppUninstall(SemanticVersion version, IAppTools tools)
+        {
+            tools.RemoveShortcutForThisExe(ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
+        }
+
+        private static void OnAppRun(SemanticVersion version, IAppTools tools, bool firstRun)
+        {
+            tools.SetProcessAppUserModelId();
         }
 
     }
