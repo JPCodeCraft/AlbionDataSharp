@@ -21,8 +21,10 @@ This project was heavily inspired in:
 
 ## Getting Started
 
-1. Download the latest release from the [Releases section](https://github.com/augusto501/AlbionDataSharp/releases).
-2. Extract the files.
-3. Configure `appsettings.json` as needed.
-4. Install [NpCap](https://npcap.com/#download). This is required.
-5. Run the executable.
+1. Install [NpCap](https://npcap.com/#download). This is required.
+2. Download AlbionDataSharpSetup.exe from the latest release in the [Releases section](https://github.com/augusto501/AlbionDataSharp/releases).
+3. Run the file. Igone Windows safety warnings => you can check the source code if you are suspicious.
+4. The installer has no pop ups. The client will be installed and shortcuts will be added to your desktop and Start Menu.5. 
+6. If needed, configure `appsettings.json`.
+7. Updates will be automatic.
+8. If you need to uninstall, go to Control Panel and uninstall as any other app.
