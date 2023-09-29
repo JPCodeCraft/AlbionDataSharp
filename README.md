@@ -13,6 +13,7 @@ AlbionDataSharp is a custom client for the [Albion Online Data Project](https://
 - Easy-to-Understand Console.
 - Server Configuration: Upload data to either the official Albion Online Data servers or your own custom servers, configurable in `appsettings.json`.
 - Thread Configuration: Choose the percentage of your thread count to solve PoW for Albion Online Data upload, configurable in `appsettings.json`.
+- Automatic updates.
 
 ## Inspiration
 This project was heavily inspired in:
