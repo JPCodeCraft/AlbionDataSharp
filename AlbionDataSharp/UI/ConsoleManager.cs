@@ -78,7 +78,7 @@ namespace AlbionDataSharp.UI
         }
         private async Task Initialize()
         {
-            version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             playerTable.Title($"[bold underline yellow]Albion Data Sharp (v. {version})[/]");
             serversTable.Columns.ToList().ForEach(x => x.Alignment = Justify.Center);
