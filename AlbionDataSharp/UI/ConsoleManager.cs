@@ -182,8 +182,10 @@ namespace AlbionDataSharp.UI
                 int historiesWeek = histories?.GetValueOrDefault(Timescale.Week) ?? 0;
                 int historiesDay = histories?.GetValueOrDefault(Timescale.Day) ?? 0;
 
+                string serverStyle = server.Color + ((server.IsReachable && server.AlbionServer == playerState.AlbionServer) ? "" : " strikethrough");
+
                 serversTable.AddRow(
-                    $"[{server.Color}]{server.Name}[/]",
+                    $"[{serverStyle}]{server.Name}[/]",
                     offers.ToString(),
                     requests.ToString(),
                     historiesMonth.ToString(),

@@ -7,5 +7,6 @@ namespace AlbionDataSharp.Config
         public AlbionServer AlbionServer { get; set; }
         public UploadType UploadType { get; set; }
         public string Color { get; set; }
+        public bool IsReachable { get; set; } = false;
     }
 }

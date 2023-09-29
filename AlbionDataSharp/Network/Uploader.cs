@@ -14,55 +14,34 @@ namespace AlbionDataSharp.Network
 {
     public class Uploader
     {
-        private readonly HttpClient httpClient = new HttpClient();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
-        private readonly Dictionary<ServerInfo, IConnection> natsConnections = new Dictionary<ServerInfo, IConnection>();
+
         private PlayerState playerState;
         private ConfigurationService configurationService;
         private PowSolver powSolver;
+        private ConnectionService connectionService;
 
         private int maxServerNameLength;
 
         public event EventHandler<MarketUploadEventArgs> OnMarketUpload;
         public event EventHandler<GoldPriceUploadEventArgs> OnGoldPriceUpload;
         public event EventHandler<MarketHistoriesUploadEventArgs> OnMarketHistoryUpload;
-        public Uploader(PlayerState playerState, ConfigurationService configurationService, PowSolver powSolver)
+        public Uploader(PlayerState playerState, ConfigurationService configurationService, PowSolver powSolver, ConnectionService connectionService)
         {
             this.playerState = playerState;
             this.configurationService = configurationService;
             this.powSolver = powSolver;
+            this.connectionService = connectionService;
 
             maxServerNameLength = GetMaxServerNameLength();
-            foreach (var server in configurationService.NetworkSettings.UploadServers)
-            {
-                if (server.UploadType == UploadType.Nats)
-                {
-                    var options = ConnectionFactory.GetDefaultOptions();
-                    options.Url = server.Url;
-                    //hacks so nats won't log it's default event to console
-                    options.DisconnectedEventHandler = (sender, args) =>
-                    {
-                        Log.Information("Nats connection of {server} disconnected with error {error}", server.Name, args.Error);
-                    };
-                    options.ClosedEventHandler = (sender, args) =>
-                    {
-                        Log.Information("Nats connection of {server} closed with error {error}", server.Name, args.Error);
-                    };
-                    options.ReconnectedEventHandler = (sender, args) =>
-                    {
-                        Log.Information("Nats connection of {server} reconnected with error {error}", server.Name, args.Error);
-                    };
-                    natsConnections[server] = new ConnectionFactory().CreateConnection(options);
-                }
-            }
         }
-
         public async Task Upload(MarketUpload marketUpload)
         {
             var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
             var requests = marketUpload.Orders.Where(x => x.AuctionType == "request").Count();
             var data = SerializeData(marketUpload);
-            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer &&
+                x.IsReachable))
             {
                 if (await UploadData(data, server, configurationService.NetworkSettings.MarketOrdersIngestSubject))
                 {
@@ -75,7 +54,8 @@ namespace AlbionDataSharp.Network
         {
             var amount = goldHistoryUpload.Prices.Length;
             var data = SerializeData(goldHistoryUpload);
-            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer &&
+                x.IsReachable))
             {
                 if (await UploadData(data, server, configurationService.NetworkSettings.GoldDataIngestSubject))
                 {
@@ -84,14 +64,13 @@ namespace AlbionDataSharp.Network
                 }
             }
         }
-
-
         public async Task Upload(MarketHistoriesUpload marketHistoriesUpload)
         {
             var count = marketHistoriesUpload.MarketHistories.Count;
             var timescale = marketHistoriesUpload.Timescale;
             var data = SerializeData(marketHistoriesUpload);
-            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer))
+            foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer &&
+                x.IsReachable))
             {
                 if (await UploadData(data, server, configurationService.NetworkSettings.MarketHistoriesIngestSubject))
                 {
@@ -100,7 +79,6 @@ namespace AlbionDataSharp.Network
                 }
             }
         }
-
         private byte[] SerializeData(object upload)
         {
             return JsonSerializer.SerializeToUtf8Bytes(upload, new JsonSerializerOptions { IncludeFields = true });
@@ -111,7 +89,7 @@ namespace AlbionDataSharp.Network
             {
                 if (server.UploadType == UploadType.Nats)
                 {
-                    if (natsConnections.TryGetValue(server, out var natsConnection))
+                    if (connectionService.natsConnections.TryGetValue(server, out var natsConnection))
                     {
                         return UploadToNats(data, topic, server, natsConnection);
                     }
@@ -126,13 +104,13 @@ namespace AlbionDataSharp.Network
                     await semaphore.WaitAsync();
                     try
                     {
-                        var powRequest = await powSolver.GetPowRequest(server, httpClient);
+                        var powRequest = await powSolver.GetPowRequest(server, connectionService.httpClient);
                         if (powRequest is not null)
                         {
                             var solution = await powSolver.SolvePow(powRequest);
                             if (!string.IsNullOrEmpty(solution))
                             {
-                                await UploadWithPow(powRequest, solution, data, topic, server, httpClient);
+                                await UploadWithPow(powRequest, solution, data, topic, server, connectionService.httpClient);
                                 return true;
                             }
                             else
@@ -250,17 +228,6 @@ namespace AlbionDataSharp.Network
         private int GetMaxServerNameLength()
         {
             return configurationService.NetworkSettings.UploadServers.Max(s => s.Name.Length);
-        }
-        public void OnShutDown()
-        {
-            // Close and flush NATS connections here
-            foreach (var connection in natsConnections.Values)
-            {
-                connection.Drain();
-                connection.Close();
-            }
-            httpClient.Dispose();
-            Log.Information("Closed all {type} Connections!", nameof(Uploader));
         }
     }
 }
