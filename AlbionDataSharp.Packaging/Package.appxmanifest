@@ -9,7 +9,7 @@
   <Identity
     Name="ca6a96dd-26bd-4297-926c-f515875c0999"
     Publisher="CN=JP CodeCraft"
-    Version="0.3.9.0" />
+    Version="0.3.10.0" />
 
   <Properties>
     <DisplayName>AlbionDataSharp.Packaging</DisplayName>
