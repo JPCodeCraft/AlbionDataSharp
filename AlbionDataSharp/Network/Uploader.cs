@@ -157,7 +157,7 @@ namespace AlbionDataSharp.Network
             });
 
             var request = new HttpRequestMessage(HttpMethod.Post, fullURL);
-            request.Headers.Add("User-Agent", "AlbionDataSharp");
+            request.Headers.Add("User-Agent", "albiondata-client/0.1.31");
             request.Content = dataToSend;
 
             HttpResponseMessage response = await client.SendAsync(request);

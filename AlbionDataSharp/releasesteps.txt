@@ -1,6 +1,6 @@
 cd C:\Users\augus\.nuget\packages\clowd.squirrel\2.9.42\tools
 
-Squirrel.exe pack --packId "AlbionDataSharp" --packVersion "0.2.4" --framework net7.0 --packDirectory "C:\Users\augus\source\repos\augusto501\AlbionDataSharp\AlbionDataSharp\bin\Release\net7.0" --releaseDir="C:\Users\augus\Desktop\ADS RELEASES" --packTitle="Albion Data Sharp"
+Squirrel.exe pack --packId "AlbionDataSharp" --packVersion "0.2.5" --framework net7.0 --packDirectory "C:\Users\augus\source\repos\augusto501\AlbionDataSharp\AlbionDataSharp\bin\Release\net7.0" --releaseDir="C:\Users\augus\Desktop\ADS RELEASES" --packTitle="Albion Data Sharp"
 
 UPDATE VERSION IN APP.MANIFEST assemblyIdentity
 UPDATE VERSION IN PROJECT FILE Version
