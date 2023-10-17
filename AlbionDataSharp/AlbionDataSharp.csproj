@@ -11,7 +11,7 @@
   </PropertyGroup>
 
 	<PropertyGroup>
-		<Version>0.2.4.0</Version>
+		<Version>0.2.5.0</Version>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<AssemblyName>Albion Data Sharp</AssemblyName>
 		<Company>Augusto A</Company>
