@@ -23,9 +23,6 @@ This project was heavily inspired in:
 ## Getting Started
 
 1. Install [NpCap](https://npcap.com/#download). This is required.
-2. Download `AlbionDataSharpSetup.exe` from the latest release in the [Releases section](https://github.com/augusto501/AlbionDataSharp/releases).
-3. Run the file. Igone Windows safety warnings => you can check the source code if you are suspicious.
-4. The installer has no pop ups. The client will be installed and shortcuts will be added to your desktop and Start Menu.
-5. If needed, configure `appsettings.json`.
-6. Updates will be automatic.
-7. If you need to uninstall, go to Control Panel and uninstall as any other app.
+2. Download `Albion.Data.Sharp.zip` from the [latest release](https://github.com/augusto501/AlbionDataSharp/releases/latest) in the [Releases section](https://github.com/augusto501/AlbionDataSharp/releases).
+3. Extract the files to a folder anywhere you want. Run the `Albion Data Sharp.exe` file. Igone Windows safety warnings => you can check the source code if you are suspicious.
+4. If needed, configure `appsettings.json`.
