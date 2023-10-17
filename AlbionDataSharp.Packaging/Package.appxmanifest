@@ -7,12 +7,12 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="ca6a96dd-26bd-4297-926c-f515875c0999"
-    Publisher="CN=JP CodeCraft"
+    Name="23924JPCodeCraft.AlbionDataSharp"
+    Publisher="CN=475C3F25-EB6A-4E18-BE18-E6FC75362747"
     Version="0.3.10.0" />
 
   <Properties>
-    <DisplayName>AlbionDataSharp.Packaging</DisplayName>
+    <DisplayName>Albion Data Sharp</DisplayName>
     <PublisherDisplayName>JP CodeCraft</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
