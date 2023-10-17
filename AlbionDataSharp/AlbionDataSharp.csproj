@@ -10,14 +10,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<Version>0.2.5.0</Version>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<AssemblyName>Albion Data Sharp</AssemblyName>
-		<Company>Augusto A</Company>
-		<Authors>Augusto A</Authors>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<Content Include="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -27,7 +19,6 @@
 	<ItemGroup>
     <PackageReference Include="Albion.Network" Version="5.0.1" />
     <PackageReference Include="AlbionData.Models" Version="0.1.12" />
-    <PackageReference Include="Clowd.Squirrel" Version="2.9.42" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="NATS.Client" Version="1.0.8" />
     <PackageReference Include="Serilog" Version="3.0.1" />
