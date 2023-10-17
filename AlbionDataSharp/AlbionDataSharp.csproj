@@ -7,9 +7,14 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
     <StartupObject>AlbionDataSharp.Program</StartupObject>
-    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-
+	
+	<PropertyGroup>
+		<Version>0.3.9.0</Version>
+		<AssemblyName>Albion Data Sharp</AssemblyName>
+		<Company>JP CodeCraft</Company>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<Content Include="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
