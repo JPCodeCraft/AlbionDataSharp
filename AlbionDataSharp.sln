@@ -5,8 +5,6 @@ VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlbionDataSharp", "AlbionDataSharp\AlbionDataSharp.csproj", "{4CCE2A89-8C8B-4972-A243-2895AD9A4B28}"
 EndProject
-Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "AlbionDataSharp.Packaging", "AlbionDataSharp.Packaging\AlbionDataSharp.Packaging.wapproj", "{10F5249A-C55A-439F-8588-22B997D00D50}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,36 +39,6 @@ Global
 		{4CCE2A89-8C8B-4972-A243-2895AD9A4B28}.Release|x64.Build.0 = Release|Any CPU
 		{4CCE2A89-8C8B-4972-A243-2895AD9A4B28}.Release|x86.ActiveCfg = Release|Any CPU
 		{4CCE2A89-8C8B-4972-A243-2895AD9A4B28}.Release|x86.Build.0 = Release|Any CPU
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|ARM.ActiveCfg = Debug|ARM
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|ARM.Build.0 = Debug|ARM
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|ARM.Deploy.0 = Debug|ARM
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|ARM64.Build.0 = Debug|ARM64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|ARM64.Deploy.0 = Debug|ARM64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|x64.ActiveCfg = Debug|x64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|x64.Build.0 = Debug|x64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|x64.Deploy.0 = Debug|x64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|x86.ActiveCfg = Debug|x86
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|x86.Build.0 = Debug|x86
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Debug|x86.Deploy.0 = Debug|x86
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|Any CPU.Build.0 = Release|Any CPU
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|ARM.ActiveCfg = Release|ARM
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|ARM.Build.0 = Release|ARM
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|ARM.Deploy.0 = Release|ARM
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|ARM64.ActiveCfg = Release|ARM64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|ARM64.Build.0 = Release|ARM64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|ARM64.Deploy.0 = Release|ARM64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|x64.ActiveCfg = Release|x64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|x64.Build.0 = Release|x64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|x64.Deploy.0 = Release|x64
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|x86.ActiveCfg = Release|x86
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|x86.Build.0 = Release|x86
-		{10F5249A-C55A-439F-8588-22B997D00D50}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
