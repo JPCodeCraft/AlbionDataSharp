@@ -146,7 +146,8 @@ namespace AlbionDataSharp.Network
         }
         private async Task UploadWithPow(PowRequest pow, string solution, byte[] data, string topic, Config.ServerInfo server, HttpClient client)
         {
-            string fullURL = server.Url + "/pow/" + topic;
+            Uri baseUri = new Uri(server.Url);
+            Uri fullURL = new Uri(baseUri, "/pow/" + topic);
 
             var dataToSend = new FormUrlEncodedContent(new[]
             {
@@ -157,7 +158,6 @@ namespace AlbionDataSharp.Network
             });
 
             var request = new HttpRequestMessage(HttpMethod.Post, fullURL);
-            request.Headers.Add("User-Agent", "albiondata-client/0.1.31");
             request.Content = dataToSend;
 
             HttpResponseMessage response = await client.SendAsync(request);
