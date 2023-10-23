@@ -15,6 +15,8 @@ namespace AlbionDataSharp.Network
         public ConnectionService(ConfigurationService configurationService)
         {
             this.configurationService = configurationService;
+
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("albiondata-client/0.1.31");
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -51,16 +53,31 @@ namespace AlbionDataSharp.Network
                 }
                 else if (server.UploadType == UploadType.PoW)
                 {
-                    HttpResponseMessage response = await httpClient.GetAsync(server.Url + "/pow");
-                    if (response.IsSuccessStatusCode)
+                    try
                     {
-                        Log.Information("Connected to {serverType} server {Server}", server.UploadType, server.Name);
-                        server.IsReachable = true;
+                        Uri baseUri = new Uri(server.Url);
+                        Uri fullURL = new Uri(baseUri, "/pow");
+                        var request = new HttpRequestMessage(HttpMethod.Get, fullURL);
+
+                        HttpResponseMessage response = await httpClient.SendAsync(request);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Log.Information("Connected to {serverType} server {Server}", server.UploadType, server.Name);
+                            server.IsReachable = true;
+                        }
+                        else
+                        {
+                            server.IsReachable = false;
+                            Log.Error("Failed to connect to {serverType} server {Server}", server.UploadType, server.Name);
+                        }
+
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        Console.WriteLine();
                         server.IsReachable = false;
-                        Log.Error("Failed to connect to {serverType} server {Server}", server.UploadType, server.Name);
+                        Log.Error("Exception: {exception}. Error trying to connect to {serverType} server {Server}", ex.Message, server.UploadType, server.Name);
                     }
                 }
             }

@@ -20,11 +20,11 @@ namespace AlbionDataSharp.Network.Pow
 
         public async Task<PowRequest?> GetPowRequest(ServerInfo server, HttpClient client)
         {
-            string fullURL = server.Url + "/pow";
-
+            Uri baseUri = new Uri(server.Url);
+            Uri fullURL = new Uri(baseUri, "/pow");
 
             var request = new HttpRequestMessage(HttpMethod.Get, fullURL);
-            request.Headers.Add("User-Agent", "AlbionDataSharp");
+            request.Headers.Add("User-Agent", "albiondata-client/0.1.31");
             HttpResponseMessage response = await client.SendAsync(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
