@@ -158,6 +158,7 @@ namespace AlbionDataSharp.Network
             });
 
             var request = new HttpRequestMessage(HttpMethod.Post, fullURL);
+            request.Headers.Add("User-Agent", configurationService.NetworkSettings.UserAgent);
             request.Content = dataToSend;
 
             HttpResponseMessage response = await client.SendAsync(request);

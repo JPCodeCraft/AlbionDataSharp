@@ -7,5 +7,6 @@
         public required string GoldDataIngestSubject { get; set; }
         public required ServerInfo[] UploadServers { get; set; }
         public required float ThreadLimitPercentage { get; set; }
+        public required string UserAgent { get; set; }
     }
 }

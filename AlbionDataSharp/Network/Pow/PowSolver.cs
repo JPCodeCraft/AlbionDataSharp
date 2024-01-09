@@ -24,7 +24,7 @@ namespace AlbionDataSharp.Network.Pow
             Uri fullURL = new Uri(baseUri, "/pow");
 
             var request = new HttpRequestMessage(HttpMethod.Get, fullURL);
-            request.Headers.Add("User-Agent", "albiondata-client/0.1.31");
+            request.Headers.Add("User-Agent", configurationService.NetworkSettings.UserAgent);
             HttpResponseMessage response = await client.SendAsync(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
