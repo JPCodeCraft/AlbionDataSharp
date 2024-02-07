@@ -11,9 +11,12 @@ namespace AlbionDataSharp.State
         private Location location = 0;
         private string playerName = string.Empty;
         private AlbionServer albionServer = AlbionServer.Unknown;
+        private int uploadQueueSize = 0;
 
         public MarketHistoryInfo[] MarketHistoryIDLookup { get; init; }
         public ulong CacheSize => 8192;
+        private Queue<string> SentDataHashs = new Queue<string>();
+        private const int maxHashQueueSize = 10;
 
         public event EventHandler<PlayerStateEventArgs> OnPlayerStateChanged;
 
@@ -29,7 +32,7 @@ namespace AlbionDataSharp.State
             {
                 location = value;
                 Log.Information("Player location set to {Location}", Location.ToString());
-                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer));
+                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer, UploadQueueSize));
             }
         }
         public string PlayerName
@@ -40,7 +43,7 @@ namespace AlbionDataSharp.State
                 if (playerName == value) return;
                 playerName = value;
                 Log.Information("Player name set to {PlayerName}", PlayerName);
-                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer));
+                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer, UploadQueueSize));
             }
         }
         public AlbionServer AlbionServer
@@ -51,7 +54,16 @@ namespace AlbionDataSharp.State
                 if (albionServer == value) return;
                 albionServer = value;
                 Log.Information("Server set to {Server}", AlbionServer);
-                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer));
+                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer, UploadQueueSize));
+            }
+        }
+        public int UploadQueueSize
+        {
+            get => uploadQueueSize;
+            set
+            {
+                uploadQueueSize = value;
+                OnPlayerStateChanged?.Invoke(this, new PlayerStateEventArgs(Location, PlayerName, AlbionServer, UploadQueueSize));
             }
         }
 
@@ -63,6 +75,23 @@ namespace AlbionDataSharp.State
                 return false;
             }
             else return true;
+        }
+
+        public void AddSentDataHash(string hash)
+        {
+            if (hash == null || hash.Length == 0 || SentDataHashs.Contains(hash)) return;
+
+            if (SentDataHashs.Count == maxHashQueueSize)
+            {
+                SentDataHashs.Dequeue();
+            }
+            SentDataHashs.Enqueue(hash);
+        }
+
+        public bool CheckHashInQueue(string hash)
+        {
+            bool result = SentDataHashs.Contains(hash);
+            return result;
         }
     }
 }
