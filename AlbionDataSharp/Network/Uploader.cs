@@ -7,6 +7,7 @@ using NATS.Client;
 using Serilog;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -37,6 +38,7 @@ namespace AlbionDataSharp.Network
         }
         public async Task Upload(MarketUpload marketUpload)
         {
+            playerState.UploadQueueSize++;
             var offers = marketUpload.Orders.Where(x => x.AuctionType == "offer").Count();
             var requests = marketUpload.Orders.Where(x => x.AuctionType == "request").Count();
             var data = SerializeData(marketUpload);
@@ -49,9 +51,11 @@ namespace AlbionDataSharp.Network
                     OnMarketUpload?.Invoke(this, new MarketUploadEventArgs(marketUpload, server));
                 }
             }
+            playerState.UploadQueueSize--;
         }
         public async Task Upload(GoldPriceUpload goldHistoryUpload)
         {
+            playerState.UploadQueueSize++;
             var amount = goldHistoryUpload.Prices.Length;
             var data = SerializeData(goldHistoryUpload);
             foreach (var server in configurationService.NetworkSettings.UploadServers.Where(x => x.AlbionServer == playerState.AlbionServer &&
@@ -63,9 +67,11 @@ namespace AlbionDataSharp.Network
                     OnGoldPriceUpload?.Invoke(this, new GoldPriceUploadEventArgs(goldHistoryUpload, server));
                 }
             }
+            playerState.UploadQueueSize--;
         }
         public async Task Upload(MarketHistoriesUpload marketHistoriesUpload)
         {
+            playerState.UploadQueueSize++;
             var count = marketHistoriesUpload.MarketHistories.Count;
             var timescale = marketHistoriesUpload.Timescale;
             var data = SerializeData(marketHistoriesUpload);
@@ -78,15 +84,37 @@ namespace AlbionDataSharp.Network
                     OnMarketHistoryUpload?.Invoke(this, new MarketHistoriesUploadEventArgs(marketHistoriesUpload, server));
                 }
             }
+            playerState.UploadQueueSize--;
         }
         private byte[] SerializeData(object upload)
         {
             return JsonSerializer.SerializeToUtf8Bytes(upload, new JsonSerializerOptions { IncludeFields = true });
         }
+        private string GetHash(byte[] data, ServerInfo server)
+        {
+            var serverBytes = SerializeData(server);
+            var combinedBytes = new byte[data.Length + serverBytes.Length];
+            Buffer.BlockCopy(data, 0, combinedBytes, 0, data.Length);
+            Buffer.BlockCopy(serverBytes, 0, combinedBytes, data.Length, serverBytes.Length);
+
+            using (var sha256 = SHA256.Create())
+            {
+                var hashBytes = sha256.ComputeHash(combinedBytes);
+                var hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+                return hash;
+            }
+        }
         private async Task<bool> UploadData(byte[] data, Config.ServerInfo server, string topic)
         {
             try
             {
+                string dataHash = GetHash(data, server);
+                if (playerState.CheckHashInQueue(dataHash))
+                {
+                    return false;
+                }
+                playerState.AddSentDataHash(dataHash);
+
                 if (server.UploadType == UploadType.Nats)
                 {
                     if (connectionService.natsConnections.TryGetValue(server, out var natsConnection))

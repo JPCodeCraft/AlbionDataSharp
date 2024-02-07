@@ -24,7 +24,6 @@ namespace AlbionDataSharp.UI
             .Expand();
 
         private readonly Table serversTable = new Table()
-            .Title("[bold yellow]Server Statistics - Data Sent[/]")
             .Border(TableBorder.Double)
             .AddColumns("[bold]Server[/]", "[bold]Offers[/]", "[bold]Requests[/]", "[bold]Histories (Month)[/]", "[bold]Histories (Week)[/]", "[bold]Histories (Day)[/]", "[bold]Gold Histories[/]")
             .Expand();
@@ -48,6 +47,7 @@ namespace AlbionDataSharp.UI
         private string playerName = string.Empty;
         private Location playerLocation = 0;
         private AlbionServer albionServer = AlbionServer.Unknown;
+        private int uploadQueueSize = 0;
 
         private string version = string.Empty;
 
@@ -64,7 +64,7 @@ namespace AlbionDataSharp.UI
             marketUploadHandler = (sender, args) => ProcessMarketUpload(args.MarketUpload, args.Server);
             goldPriceUploadHandler = (sender, args) => ProcessGoldPriceUpload(args.GoldPriceUpload, args.Server);
             marketHistoryUploadHandler = (sender, args) => ProcessMarketHistoriesUpload(args.MarketHistoriesUpload, args.Server);
-            playerStateHandler = (sender, args) => ProcessPlayerState(args.Location, args.Name, args.AlbionServer);
+            playerStateHandler = (sender, args) => ProcessPlayerState(args.Location, args.Name, args.AlbionServer, args.UploadQueueSize);
 
             uploader.OnMarketUpload += marketUploadHandler;
             uploader.OnGoldPriceUpload += goldPriceUploadHandler;
@@ -100,11 +100,12 @@ namespace AlbionDataSharp.UI
         {
             return configurationService.NetworkSettings.UploadServers.ToList();
         }
-        private void ProcessPlayerState(Location location, string name, AlbionServer albionServer)
+        private void ProcessPlayerState(Location location, string name, AlbionServer albionServer, int uploadQueueSize)
         {
             playerName = name;
             playerLocation = location;
             this.albionServer = albionServer;
+            this.uploadQueueSize = uploadQueueSize;
             FlagReWrite();
         }
         private void ProcessMarketUpload(MarketUpload marketUpload, ServerInfo server)
@@ -163,6 +164,8 @@ namespace AlbionDataSharp.UI
         }
         private void WriteTable()
         {
+            //Sets serversTable Title
+            serversTable.Title($"[bold yellow]Server Statistics - Data Sent (Queue Size: {uploadQueueSize})[/]");
             // Clear existing rows
             serversTable.Rows.Clear();
             logTable.Rows.Clear();
