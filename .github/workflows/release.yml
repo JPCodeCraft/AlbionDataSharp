@@ -41,12 +41,12 @@ jobs:
     #   run: dotnet test --no-restore --verbosity normal
 
     - name: Publish
-      run: dotnet publish --configuration Release --no-build -o ./build
+      run: dotnet publish --configuration Release --runtime win-x64 -p:PublishProfile=FolderProfile --no-build
 
     - name: Zip artifacts
       run: |
         sudo apt-get install zip
-        zip -r AlbionDataSharp_v_${{ steps.get_version.outputs.VERSION }}.zip ./build
+        zip -r AlbionDataSharp_v_${{ steps.get_version.outputs.VERSION }}.zip ./publish
 
     - name: Create Release
       id: create_release
