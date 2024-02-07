@@ -32,14 +32,11 @@ jobs:
 
       - name: Publish
         run: dotnet publish --configuration Release --runtime win-x64 -p:PublishProfile=FolderProfile
-
-      - name: List publish directory
-        run: ls -la ./publish
         
       - name: Zip artifacts
         run: |
           sudo apt-get install zip
-          zip -r AlbionDataSharp_v_${{ steps.get_version.outputs.VERSION }}.zip ./publish
+          zip -r AlbionDataSharp_v_${{ steps.get_version.outputs.VERSION }}.zip .AlbionDataSharp/publish
 
       - name: Create Tag
         run: |
