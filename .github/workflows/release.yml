@@ -28,7 +28,7 @@ jobs:
         run: dotnet restore --runtime win-x64
 
       - name: Build
-        run: dotnet build --configuration Release --runtime win-x64 --no-restore
+        run: dotnet build --configuration Release --no-restore
 
       # - name: Test
       #   run: dotnet test --no-restore --verbosity normal
