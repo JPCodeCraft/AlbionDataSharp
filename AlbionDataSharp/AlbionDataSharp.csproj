@@ -10,7 +10,7 @@
   </PropertyGroup>
 	
 	<PropertyGroup>
-		<Version>0.3.16</Version>
+		<Version>0.3.17</Version>
 		<AssemblyName>Albion Data Sharp</AssemblyName>
 		<Company>JP CodeCraft</Company>
 	</PropertyGroup>
