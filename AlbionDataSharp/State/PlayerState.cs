@@ -16,7 +16,7 @@ namespace AlbionDataSharp.State
         public MarketHistoryInfo[] MarketHistoryIDLookup { get; init; }
         public ulong CacheSize => 8192;
         private Queue<string> SentDataHashs = new Queue<string>();
-        private const int maxHashQueueSize = 10;
+        private const int maxHashQueueSize = 30;
 
         public event EventHandler<PlayerStateEventArgs> OnPlayerStateChanged;
 
