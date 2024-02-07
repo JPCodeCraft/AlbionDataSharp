@@ -33,6 +33,9 @@ jobs:
       - name: Publish
         run: dotnet publish --configuration Release --runtime win-x64 -p:PublishProfile=FolderProfile
 
+      - name: List publish directory
+        run: ls -la ./publish
+        
       - name: Zip artifacts
         run: |
           sudo apt-get install zip
